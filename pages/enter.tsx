@@ -1,24 +1,55 @@
 import { useState } from "react";
 import Image from "next/image";
 
+function cls(...classnames: string[]) {
+  return classnames.join(" ");
+}
 export default function Enter() {
   const [method, setMethod] = useState<"Login" | "Sign-in">("Login");
   const onLoginClick = () => setMethod("Login");
   const onSigninClick = () => setMethod("Sign-in");
   return (
-    <div>
-      <h3>Well come to Quokkao Talk</h3>
-      <div>
-        <h5>{method}</h5>
-        <div>
-          <button onClick={onLoginClick}>Login</button>
-          <button onClick={onSigninClick}>Sign in</button>
+    <div className="mt-16 px-4">
+      <h3 className="text-3xl font-semibold text-center">
+        Well come to Quokkao Talk
+      </h3>
+      <div className="mt-10">
+        <div className="grid border-b w-full mt-8 grid-cols-2">
+          <button
+            onClick={onLoginClick}
+            className={cls(
+              "pb-4 font-semibold text-sm border-b-2",
+              method === "Login"
+                ? " border-orange-700"
+                : "border-transparent hover:text-gray-400 text-gray-500"
+            )}
+          >
+            Login
+          </button>
+          <button
+            onClick={onSigninClick}
+            className={cls(
+              "pb-4 font-semibold text-sm border-b-2",
+              method === "Sign-in"
+                ? " border-orange-700"
+                : "border-transparent hover:text-gray-400 text-gray-500"
+            )}
+          >
+            Sign in
+          </button>
         </div>
+        <h5>{method}</h5>
       </div>
       <form>
-        <label>{"Emaill address or phone"}</label>
+        <label className="text-sm font-medium text-gray-[650]">
+          {"Emaill address or phone"}
+        </label>
         <div>
-          <input type="text" required />
+          <input
+            type="text"
+            required
+            className="appearance-none w-full px-2 py-2 border border-orange-900 border-opacity-30 rounded-md shadow-sm placeholder-orange-800 focus:outline-none focus:ring-orange-400 focus:border-orange-800 "
+          />
         </div>
         <button>{method}</button>
       </form>
