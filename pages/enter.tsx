@@ -14,6 +14,7 @@ export default function Enter() {
         Well come to Quokkao Talk
       </h3>
       <div className="mt-10">
+        <h5 className="text-center">{method}</h5>
         <div className="grid border-b w-full mt-8 grid-cols-2">
           <button
             onClick={onLoginClick}
@@ -38,7 +39,6 @@ export default function Enter() {
             Sign in
           </button>
         </div>
-        <h5>{method}</h5>
       </div>
       <form>
         <label className="text-sm font-medium text-gray-[650]">
@@ -51,16 +51,20 @@ export default function Enter() {
             className="appearance-none w-full px-2 py-2 border border-orange-900 border-opacity-30 rounded-md shadow-sm placeholder-orange-800 focus:outline-none focus:ring-orange-400 focus:border-orange-800 "
           />
         </div>
-        <button>{method}</button>
+        <button className="w-full mt-5 bg-orange-800 hover:bg-orange-900 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
+          {method}
+        </button>
       </form>
-      <div>
-        <div>
+      <div className="mt-6">
+        <div className="relative -top-2 text-center">
           <div>
-            <span>Or enter with</span>
+            <span className="bg-white px-2 text-sm text-gray-500">
+              Or enter with
+            </span>
           </div>
         </div>
-        <div>
-          <button>
+        <div className="grid grid-cols-2 mt-2 gap-2">
+          <button className="flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
             <svg
               className="w-5 h-5"
               aria-hidden="true"
@@ -74,8 +78,22 @@ export default function Enter() {
               />
             </svg>
           </button>
-          <button>
-            <Image width={30} height={100} src="/kakao.png" alt="kakao"></Image>
+          <button className="flex items-center justify-center bg-[#FEE500] text-[#000000 85%] border border-gray-300 rounded-md shadow-sm  text-sm font-medium hover:bg-yellow-400">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="#000000"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+              />
+            </svg>
+            Login with Kakao
           </button>
         </div>
       </div>
