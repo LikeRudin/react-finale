@@ -79,7 +79,7 @@ const CommunityPostDetail: NextPage = () => {
           htmlFor="description-textarea"
           className="mb-1 block text-sm font-medium text-gray-800"
         >
-          Replys
+          Reply
         </label>
         <div>
           <textarea
