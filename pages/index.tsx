@@ -11,9 +11,27 @@ const Home: NextPage = () => {
           <div className="flex space-x-4">
             <div className="w-20 aspect-square bg-orange-400 rounded-md" />
             <div className="pt-2 flex-col">
-              <h3 className="text-sm font-medium text-gray-900">hello</h3>
-              <h3 className="text-xs text-gray-500">cat</h3>
-              <span className="font-medium mt-1 text-gray-900">16:55</span>
+              <h3 className="text-md font-medium text-gray-900">hello</h3>
+              <div className="flex items-center space-x-1 text-sm text-gray-500">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
+                  />
+                </svg>
+                <span>YYYY-MM-DD</span>
+              </div>
+              <span className="font-medium mt-1 text-sm text-gray-600">
+                host: 또자 & 플린
+              </span>
             </div>
           </div>
           <div className="flex space-x-2 items-end justify-end">
@@ -54,7 +72,7 @@ const Home: NextPage = () => {
           </div>
         </div>
       ))}
-      <button className="fixed hover:bg-green-500 transition-colors cursor-pointer bottom-24 right-5 shadow-xl bg-green-400 rounded-full p-4 text-white">
+      <button className="fixed hover:bg-orange-700 transition-colors cursor-pointer bottom-24 right-5 shadow-xl bg-orange-600 rounded-full p-4 text-white font-medium">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"

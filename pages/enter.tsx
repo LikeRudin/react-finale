@@ -11,7 +11,7 @@ export default function Enter() {
   return (
     <div className="mt-16 px-4">
       <h3 className="text-3xl font-semibold text-center">
-        Well come to Quokkao Talk
+        Well come to Quo-Meet
       </h3>
       <div className="mt-10">
         <h5 className="text-center">{method}</h5>
@@ -41,17 +41,21 @@ export default function Enter() {
         </div>
       </div>
       <form>
-        <label className="text-sm font-medium text-gray-[650]">
+        <label
+          htmlFor="id-input"
+          className="text-sm font-medium text-gray-[650]"
+        >
           {"Emaill address or phone"}
         </label>
         <div>
           <input
+            id="id-input"
             type="text"
             required
             className="appearance-none w-full px-2 py-2 border border-orange-900 border-opacity-30 rounded-md shadow-sm placeholder-orange-800 focus:outline-none focus:ring-orange-400 focus:border-orange-800 "
           />
         </div>
-        <button className="w-full mt-5 bg-orange-800 hover:bg-orange-900 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
+        <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
           {method}
         </button>
       </form>
