@@ -14,7 +14,7 @@ const MeetDetail = () => {
             </p>
           </div>
         </div>
-        <div className="textBox mt-4 space-y-2">
+        <div className="descriptionBox mt-4 space-y-2">
           <h1 className="text-3xl font-bold text-gray-800">
             if i Ain't got you
           </h1>
