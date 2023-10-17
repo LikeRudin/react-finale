@@ -44,7 +44,7 @@ const Edit = () => {
           className="text-gray-800 font-medium text-sm"
           htmlFor="introduction-input"
         >
-          Email
+          Introduction
         </label>
         <input
           className="p-2 h-40 w-full rounded-md focus:border-outline-none focus:border-none focus:ring-2 focus:ring-offset-2 border-2 border-gray-400 focus:ring-orange-700 "
