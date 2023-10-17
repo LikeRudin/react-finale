@@ -82,10 +82,12 @@ const Profile = () => {
             key={item}
             className="flex justify-between px-4 border-b pb-5 cursor-pointer"
           >
-            <div className="flex space-x-4">
-              <div className="w-20 aspect-square bg-orange-400 rounded-md" />
+            <div className="flex space-x-4 items-center">
+              <div className="w-[84px] h-[84px] aspect-square bg-orange-400 rounded-md" />
               <div className="pt-2 flex-col">
-                <h3 className="text-md font-medium text-gray-900">hello</h3>
+                <div className="text-md font-medium text-gray-900 break-normal">
+                  정말 정말 재밌었던 그날의 모각코
+                </div>
                 <div className="flex items-center space-x-1 text-sm text-gray-500">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
