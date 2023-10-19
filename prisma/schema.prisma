@@ -38,10 +38,14 @@ model UserRecord {
 
   meetUps MeetUp[]
   meetUpLikes MeetUpLike[]
+  reviews Review[]
+  reviewLikes ReviewLike[]
+
   posts Post[]
   postLikes PostLike[]
   comments Comment[]
   commentLikes CommentLike[]
+
 }
 
 model MeetUp {
@@ -55,12 +59,11 @@ model MeetUp {
   description String
   isOpened Boolean @default(true)
   
-
-
   record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
   recordId Int  
 
   likes MeetUpLike[]
+  review Review[]
 
   @@index([recordId])
 }
@@ -79,6 +82,38 @@ model MeetUpLike {
   @@index([recordId])
   @@index([meetUpId])
 }
+
+model Review {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  review String @db.MediumText
+
+  record UserRecord @relation(fields: [recordId], references: [id], onDelete:Cascade)
+  recordId Int
+  meetUp MeetUp @relation(fields: [meetUpId], references: [id], onDelete: Restrict)
+  meetUpId Int
+
+  likes ReviewLike[]
+
+  @@index([recordId])
+  @@index([meetUpId])
+}
+
+model ReviewLike { 
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  recordId Int
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId Int
+  
+  @@index([recordId])
+  @@index([reviewId])
+  }
 
 
 model Post {
@@ -117,7 +152,7 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  text String
+  text String @db.MediumText
 
   record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
   recordId Int
@@ -145,6 +180,5 @@ model CommentLike {
   @@index([recordId])
   @@index([commentId])
 
-  
 }
 
