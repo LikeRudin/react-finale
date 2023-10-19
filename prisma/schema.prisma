@@ -38,6 +38,7 @@ model UserRecord {
 
   meetUps MeetUp[]
   meetUpLikes MeetUpLike[]
+  meetupComments MeetUpComment[]
   reviews Review[]
   reviewLikes ReviewLike[]
 
@@ -45,6 +46,7 @@ model UserRecord {
   postLikes PostLike[]
   comments Comment[]
   commentLikes CommentLike[]
+
 
 }
 
@@ -62,10 +64,31 @@ model MeetUp {
   record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
   recordId Int  
 
+  comments MeetUpComment[]
+
   likes MeetUpLike[]
   review Review[]
 
   @@index([recordId])
+}
+
+model MeetUpComment {  
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  text String @db.MediumText
+
+  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  recordId Int
+
+  meetUp MeetUp @relation(fields: [meetUpId], references: [id], onDelete: Cascade)
+  meetUpId Int
+
+  @@index([recordId])
+  @@index([meetUpId])
+
+
 }
 
 model MeetUpLike {
@@ -137,6 +160,7 @@ model PostLike {
   updatedAt DateTime @updatedAt
 
   text String
+
   record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
   recordId Int
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
@@ -179,6 +203,13 @@ model CommentLike {
 
   @@index([recordId])
   @@index([commentId])
+
+}
+
+model Stream {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
 }
 
