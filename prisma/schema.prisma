@@ -24,5 +24,127 @@ model User {
   phone String? @unique
   email String? @unique
   username String
+  password String
+  avatar String?
+  record UserRecord?
   }
+
+model UserRecord {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int @unique
+
+  meetUps MeetUp[]
+  meetUpLikes MeetUpLike[]
+  posts Post[]
+  postLikes PostLike[]
+  comments Comment[]
+  commentLikes CommentLike[]
+}
+
+model MeetUp {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  name String
+  image String?
+  dDay DateTime
+  description String
+  isOpened Boolean @default(true)
+  
+
+
+  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  recordId Int  
+
+  likes MeetUpLike[]
+
+  @@index([recordId])
+}
+
+model MeetUpLike {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  recordId Int
+
+  meetUp MeetUp @relation(fields: [meetUpId], references: [id], onDelete: Cascade)
+  meetUpId Int
+
+  @@index([recordId])
+  @@index([meetUpId])
+}
+
+
+model Post {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  recordId Int
+
+  comments Comment[]
+  likes PostLike[]
+
+  @@index([recordId])
+
+}
+
+model PostLike {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  text String
+  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  recordId Int
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int
+
+  @@index([recordId])
+  @@index([postId])
+
+}
+
+model Comment {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  text String
+
+  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  recordId Int
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int
+
+  likes CommentLike[]
+
+  @@index([postId])
+  @@index([recordId])
+
+}
+
+model CommentLike {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  record UserRecord @relation(fields: [recordId], references:[id], onDelete: Cascade)
+  recordId Int
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId Int
+
+  @@index([recordId])
+  @@index([commentId])
+
+  
+}
 
