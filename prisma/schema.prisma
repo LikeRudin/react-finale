@@ -47,6 +47,9 @@ model UserRecord {
   comments Comment[]
   commentLikes CommentLike[]
 
+  streams Stream[]
+  streamMessages StreamMessage[]
+
 
 }
 
@@ -168,7 +171,6 @@ model PostLike {
 
   @@index([recordId])
   @@index([postId])
-
 }
 
 model Comment {
@@ -187,7 +189,6 @@ model Comment {
 
   @@index([postId])
   @@index([recordId])
-
 }
 
 model CommentLike {
@@ -203,7 +204,6 @@ model CommentLike {
 
   @@index([recordId])
   @@index([commentId])
-
 }
 
 model Stream {
@@ -211,5 +211,34 @@ model Stream {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  name String
+  description String @db.MediumText
+  
+  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  recordId Int 
+
+  cloudflareId String
+  cloudflareUrl String
+  cloudflareKey String
+
+  messages StreamMessage[]
+  
+  @@index([recordId])
 }
 
+model StreamMessage {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  text String @db.MediumText
+
+  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  recordId Int
+
+  stream Stream @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  streamId Int
+
+  @@index([recordId])
+  @@index([streamId])
+}
