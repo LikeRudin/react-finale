@@ -1,6 +1,8 @@
 import type { NextPage } from "next";
-
+import Input from "../component/input";
+import { useForm } from "react-hook-form";
 const Upload: NextPage = () => {
+  const { register } = useForm();
   return (
     <div className="px-4 py-12">
       <label className="w-full h-48  flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-600 hover:text-orange-600 cursor-pointer">
@@ -47,6 +49,7 @@ const Upload: NextPage = () => {
                 .toISOString()
                 .split("T")[0]
             }
+            required
           />
         </div>
         <div className="flex items-center flex-start space-x-3 w-[50%]">
@@ -70,21 +73,18 @@ const Upload: NextPage = () => {
           <input
             type="time"
             className="w-[80%] focus:outline-none h-[85%] focus:ring-orange-800 rounded-md border-gray-400 focus:border-orange-800"
+            required
           />
         </div>
       </div>
       <div className="mb-2">
-        <label
-          htmlFor="title-input"
-          className="mb-1 block text-sm font-medium text-gray-800"
-        >
-          Title
-        </label>
-        <input
-          id="title-input"
+        <Input
+          label="Title"
+          name="title-input"
+          register={register("title", { required: true })}
+          required={true}
+          placeholder="Title of Meet Up"
           type="text"
-          className="mt-1 shaodw-sm w-full focus:ring-orange-800 focus:ring-2 focus:ring-offset-1  rounded-md  border-gray-400 focus:border-transparent"
-          placeholder="title of meet up"
         />
       </div>
       <div>
