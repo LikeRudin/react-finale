@@ -13,24 +13,27 @@ const useMutation = <T = any>(url: string): useMetationResult<T> => {
     fetchState: "loading",
   });
 
-  const { trigger } = useSWRMutation(url, async (requestData) => {
-    setState({ fetchState: "loading" });
-    return fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setState({ fetchState: "ok", responseData: data });
+  const { trigger } = useSWRMutation(
+    url,
+    async (url, { arg }: { arg: { requestData: string } }) => {
+      setState({ fetchState: "loading" });
+      return fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(arg),
       })
-      .catch((error) => {
-        setState({ fetchState: "fail", error });
-      });
-  });
-  return [trigger, state];
+        .then((response) => response.json())
+        .then((data) => {
+          setState({ fetchState: "ok", responseData: data });
+        })
+        .catch((error) => {
+          setState({ fetchState: "fail", error });
+        });
+    }
+  );
+  return [trigger, { ...state }];
 };
 
 export default useMutation;
