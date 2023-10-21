@@ -1,5 +1,5 @@
 import { NextPage } from "next";
-import Button from "./component/button";
+import Button from "../component/button";
 
 const Home: NextPage = () => {
   return (
