@@ -2,8 +2,8 @@ import { useState } from "react";
 import useSWRMutation from "swr/mutation";
 
 type UseMutationState<T> =
-  | { fetchState: "ok"; responseData: T }
-  | { fetchState: "fail"; error: object }
+  | { fetchState: "ok"; data: T }
+  | { fetchState: "fail"; error: object | string }
   | { fetchState: "loading" };
 
 type useMetationResult<T> = [(data: any) => void, UseMutationState<T>];
@@ -25,8 +25,11 @@ const useMutation = <T = any>(url: string): useMetationResult<T> => {
         body: JSON.stringify(arg),
       })
         .then((response) => response.json())
-        .then((data) => {
-          setState({ fetchState: "ok", responseData: data });
+        .then((parsed) => {
+          const { ok, data, error } = parsed;
+          ok
+            ? setState({ fetchState: "ok", data })
+            : setState({ fetchState: "fail", error: error as string });
         })
         .catch((error) => {
           setState({ fetchState: "fail", error });
