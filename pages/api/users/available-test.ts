@@ -3,9 +3,12 @@ import validateAndHandleRequest, {
 } from "@/libs/server/request-validator";
 import client from "@/libs/server/prisma-client";
 import withSessionApiRoute from "@/libs/server/session";
-export const handler: structuredNextApiHandler = async (req, res) => {
+import { User } from "@prisma/client";
+
+const handler: structuredNextApiHandler = async (req, res) => {
   const { emailOrPhone } = req.body;
   if (!emailOrPhone) {
+    console.log(emailOrPhone);
     return res.status(400).json({
       ok: false,
       error: "올바른 형식의 Email 또는 전화번호를 입력해야 합니다",
@@ -24,8 +27,9 @@ export const handler: structuredNextApiHandler = async (req, res) => {
       error: "올바른 형식의 Email 또는 전화번호를 입력해야 합니다",
     });
   }
-  const whereOption =
-    chosenId === emailExp ? { email: emailOrPhone } : { phone: emailOrPhone };
+  const whereOption = (
+    chosenId === emailExp ? { email: emailOrPhone } : { phone: emailOrPhone }
+  ) as { email: string } | { phone: string };
 
   const user = await client.user.findUnique({
     where: whereOption,
@@ -36,7 +40,9 @@ export const handler: structuredNextApiHandler = async (req, res) => {
       error: "이미 사용중인 Email/전화번호입니다. 다른 정보를 입력해주세요.",
     });
   }
-  return res.status(202).json({ ok: true, data: emailOrPhone });
+  req.session.user = whereOption as User;
+  await req.session.save();
+  return res.status(202).json({ ok: true, data: whereOption });
 };
 
 export default withSessionApiRoute(

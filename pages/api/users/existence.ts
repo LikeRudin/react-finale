@@ -2,8 +2,10 @@ import validateAndHandleRequest, {
   structuredNextApiHandler,
 } from "@/libs/server/request-validator";
 import client from "@/libs/server/prisma-client";
+import { User } from "@prisma/client";
 import withSessionApiRoute from "@/libs/server/session";
-export const handler: structuredNextApiHandler = async (req, res) => {
+
+const handler: structuredNextApiHandler = async (req, res) => {
   const { emailOrPhone } = req.body;
   if (!emailOrPhone) {
     return res.status(400).json({
@@ -36,7 +38,10 @@ export const handler: structuredNextApiHandler = async (req, res) => {
       error: "해당 Email/전화번호의 회원이 존재하지 않습니다",
     });
   }
-  return res.status(202).json({ ok: true, data: user.id });
+  req.session.user = { id: user.id } as User;
+  await req.session.save();
+
+  return res.status(202).json({ ok: true, data: "비밀번호를 입력해주세요." });
 };
 
 export default withSessionApiRoute(
