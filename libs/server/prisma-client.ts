@@ -1,10 +1,57 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
+
+const createClient = () => {
+  const client = new PrismaClient().$extends({
+    name: "custom-client",
+    model: {
+      user: {
+        async createUser({
+          email,
+          phone,
+          password,
+          username,
+        }: {
+          [key: string]: string;
+        }) {
+          const hashedPassword = await bcrypt.hash(password, 10);
+          return client.user.create({
+            data: {
+              email,
+              phone,
+              username,
+              password: hashedPassword,
+            },
+          });
+        },
+        async login({ password, id }: { password: string; id: number }) {
+          const user = await client.user.findUnique({
+            where: { id },
+          });
+          if (user) {
+            const passwordConfirm = await bcrypt.compare(
+              password,
+              user.password
+            );
+            if (passwordConfirm) {
+              return user;
+            }
+          }
+          return null;
+        },
+      },
+    },
+  });
+  return client;
+};
+
+type clientType = ReturnType<typeof createClient>;
 
 declare global {
-  var client: PrismaClient | undefined;
+  var client: clientType | undefined;
 }
 
-const client = global.client || new PrismaClient();
+const client = global.client || createClient();
 
 if (process.env.NODE_ENV === "development") {
   global.client = client;
