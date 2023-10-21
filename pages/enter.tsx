@@ -59,10 +59,7 @@ export default function Enter() {
   };
 
   useEffect(() => {
-    if (
-      (passwordData.fetchState === "ok" && passwordData.responseData.ok) ||
-      (accountData.fetchState === "ok" && accountData.responseData.ok)
-    ) {
+    if (passwordData.fetchState === "ok" || accountData.fetchState === "ok") {
       Router.push("/");
     }
   }, [passwordData, signInData]);
@@ -100,102 +97,122 @@ export default function Enter() {
       </div>
       {method === "Login" && (
         <>
-          {loginData.fetchState === "ok" && loginData.responseData.ok ? (
-            <form onSubmit={handlePasswordSubmit(onPasswordValid)}>
-              <Input
-                label="Password"
-                register={passwordRegister("password", { required: true })}
-                name="password"
-                required={true}
-                placeholder="password"
-                type="password"
-              />
-              <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
-                {method}
-              </button>
-            </form>
+          {loginData.fetchState === "ok" ? (
+            <>
+              <form onSubmit={handlePasswordSubmit(onPasswordValid)}>
+                <Input
+                  label="Password"
+                  register={passwordRegister("password", { required: true })}
+                  name="password"
+                  required={true}
+                  placeholder="password"
+                  type="password"
+                />
+                <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
+                  {method}
+                </button>
+              </form>
+              {passwordData.fetchState === "fail" && (
+                <p>{JSON.stringify(passwordData.error)}</p>
+              )}
+            </>
           ) : (
-            <form onSubmit={handleSubmit(onLoginStartValid)}>
-              <Input
-                label="Email or Phone"
-                register={register("emailOrPhone", { required: true })}
-                name="emailOrPhone"
-                required={true}
-                placeholder={"Login with email or phone number"}
-                type="text"
-              />
-              <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
-                {method}
-              </button>
-            </form>
+            <>
+              <form onSubmit={handleSubmit(onLoginStartValid)}>
+                <Input
+                  label="Email or Phone"
+                  register={register("emailOrPhone", { required: true })}
+                  name="emailOrPhone"
+                  required={true}
+                  placeholder={"Login with email or phone number"}
+                  type="text"
+                />
+                <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
+                  {method}
+                </button>
+              </form>
+              {loginData.fetchState === "fail" && (
+                <p>{JSON.stringify(loginData.error)}</p>
+              )}
+            </>
           )}
-          {loginData.fetchState === "ok" && !loginData.responseData.ok ? (
-            <p>{loginData.responseData.error}</p>
-          ) : null}
         </>
       )}
       {method === "Sign-in" && (
         <>
-          {signInData.fetchState === "ok" && signInData.responseData.ok ? (
-            <form onSubmit={handleSigninSubmit(onSigninValid)}>
-              <Input
-                label="Email"
-                register={signInRegister("email", { required: true })}
-                name="email"
-                required={true}
-                placeholder="Enter email address"
-                type="email"
-              />
-              <Input
-                label="Phone"
-                register={signInRegister("phone", { required: true })}
-                name="phone"
-                required={true}
-                placeholder="Enter phone number including only numbers"
-                type="text"
-              />
-              <Input
-                label="UserName"
-                register={signInRegister("username", { required: true })}
-                name="username"
-                required={true}
-                placeholder="Enter username, which is not necessarilry unique"
-                type="text"
-              />
-              <Input
-                label="Password"
-                register={signInRegister("password", { required: true })}
-                name="password"
-                required={true}
-                placeholder="Enter your password"
-                type="password"
-              />
-              <Input
-                label="Password Confirm"
-                register={signInRegister("passwordconfirm", { required: true })}
-                name="passwordconfirm"
-                required={true}
-                placeholder="Re-enter your password"
-                type="password"
-              />
-              <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
-                Create new account
-              </button>
-            </form>
+          {signInData.fetchState === "ok" ? (
+            <>
+              <form onSubmit={handleSigninSubmit(onSigninValid)}>
+                <Input
+                  label="Email"
+                  register={signInRegister("email", { required: true })}
+                  name="email"
+                  required={true}
+                  placeholder="Enter email address"
+                  type="email"
+                />
+                <Input
+                  label="Phone"
+                  register={signInRegister("phone", { required: true })}
+                  name="phone"
+                  required={true}
+                  placeholder="Enter phone number including only numbers"
+                  type="text"
+                />
+                <Input
+                  label="UserName"
+                  register={signInRegister("username", { required: true })}
+                  name="username"
+                  required={true}
+                  placeholder="Enter username, which is not necessarilry unique"
+                  type="text"
+                />
+                <Input
+                  label="Password"
+                  register={signInRegister("password", { required: true })}
+                  name="password"
+                  required={true}
+                  placeholder="Enter your password"
+                  type="password"
+                />
+                <Input
+                  label="Password Confirm"
+                  register={signInRegister("passwordconfirm", {
+                    required: true,
+                  })}
+                  name="passwordconfirm"
+                  required={true}
+                  placeholder="Re-enter your password"
+                  type="password"
+                />
+                <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
+                  Create new account
+                </button>
+              </form>
+              {accountData.fetchState === "fail" && (
+                <p>{JSON.stringify(accountData.error)}</p>
+              )}
+            </>
           ) : (
-            <form onSubmit={handleSubmit(onSigninStartValid)}>
-              <Input
-                label="Email or Phone"
-                register={register("emailOrPhone", { required: true })}
-                name="emailOrPhone"
-                required={true}
-                placeholder={"Enter email or phone number to sign in"}
-                type="text"
-              />
-              <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
-                {method}
-              </button>
-            </form>
+            <>
+              <form onSubmit={handleSubmit(onSigninStartValid)}>
+                <Input
+                  label="Email or Phone"
+                  register={register("emailOrPhone", { required: true })}
+                  name="emailOrPhone"
+                  required={true}
+                  placeholder={"Enter email or phone number to sign in"}
+                  type="text"
+                />
+                <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
+                  {method}
+                </button>
+              </form>
+
+              {signInData.fetchState === "fail" && (
+                <p>{JSON.stringify(signInData.error)}</p>
+              )}
+            </>
           )}
         </>
       )}
