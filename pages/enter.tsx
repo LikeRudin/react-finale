@@ -1,15 +1,71 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import Input from "./component/input";
+import useMutation from "@/libs/client/useMutation";
+import Input from "../component/input";
+import { APIROUTE } from "@/constants/apiroutes";
+import Router from "next/router";
 
 function cls(...classnames: string[]) {
   return classnames.join(" ");
 }
+
+interface EnterForm {
+  emailOrPhone: string;
+}
+
+interface PasswordForm {
+  password: string;
+}
+
+interface SignInForm {
+  email: string;
+  phone: string;
+  username: string;
+  password: string;
+  passwordconfirm: string;
+}
+
 export default function Enter() {
   const [method, setMethod] = useState<"Login" | "Sign-in">("Login");
-  const { register } = useForm();
+
+  const { register, handleSubmit, reset } = useForm<EnterForm>();
+  const [loginStart, loginData] = useMutation(APIROUTE.ENTER_LOGIN);
+  const [signInStart, signInData] = useMutation(APIROUTE.ENTER_SIGNIN);
+
+  const { register: passwordRegister, handleSubmit: handlePasswordSubmit } =
+    useForm<PasswordForm>();
+  const [confirmPassword, passwordData] = useMutation(APIROUTE.ENTER_PASSWORD);
+
+  const { register: signInRegister, handleSubmit: handleSigninSubmit } =
+    useForm<SignInForm>();
+  const [createAccount, accountData] = useMutation(APIROUTE.ENTER_CREATION);
+
   const onLoginClick = () => setMethod("Login");
   const onSigninClick = () => setMethod("Sign-in");
+
+  const onLoginStartValid = (validForm: EnterForm) => {
+    reset();
+    loginStart(validForm);
+  };
+  const onPasswordValid = (validForm: PasswordForm) => {
+    confirmPassword(validForm);
+  };
+
+  const onSigninStartValid = (validForm: EnterForm) => {
+    signInStart(validForm);
+  };
+  const onSigninValid = (validForm: SignInForm) => {
+    createAccount(validForm);
+  };
+
+  useEffect(() => {
+    if (
+      (passwordData.fetchState === "ok" && passwordData.responseData.ok) ||
+      (accountData.fetchState === "ok" && accountData.responseData.ok)
+    ) {
+      Router.push("/");
+    }
+  }, [passwordData, signInData]);
   return (
     <div className="mt-16 px-4">
       <h3 className="text-3xl font-semibold text-center">
@@ -42,23 +98,107 @@ export default function Enter() {
           </button>
         </div>
       </div>
-      <form>
-        <Input
-          label="Email or Phone"
-          register={register("emailOrPhone", { required: true })}
-          name="emailOrPhone"
-          required={true}
-          placeholder={
-            method === "Login"
-              ? "Login with email or phone number"
-              : "Enter email or phone number to sign in"
-          }
-          type="text"
-        />
-        <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
-          {method}
-        </button>
-      </form>
+      {method === "Login" && (
+        <>
+          {loginData.fetchState === "ok" && loginData.responseData.ok ? (
+            <form onSubmit={handlePasswordSubmit(onPasswordValid)}>
+              <Input
+                label="Password"
+                register={passwordRegister("password", { required: true })}
+                name="password"
+                required={true}
+                placeholder="password"
+                type="password"
+              />
+              <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
+                {method}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleSubmit(onLoginStartValid)}>
+              <Input
+                label="Email or Phone"
+                register={register("emailOrPhone", { required: true })}
+                name="emailOrPhone"
+                required={true}
+                placeholder={"Login with email or phone number"}
+                type="text"
+              />
+              <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
+                {method}
+              </button>
+            </form>
+          )}
+          {loginData.fetchState === "ok" && !loginData.responseData.ok ? (
+            <p>{loginData.responseData.error}</p>
+          ) : null}
+        </>
+      )}
+      {method === "Sign-in" && (
+        <>
+          {signInData.fetchState === "ok" && signInData.responseData.ok ? (
+            <form onSubmit={handleSigninSubmit(onSigninValid)}>
+              <Input
+                label="Email"
+                register={signInRegister("email", { required: true })}
+                name="email"
+                required={true}
+                placeholder="Enter email address"
+                type="email"
+              />
+              <Input
+                label="Phone"
+                register={signInRegister("phone", { required: true })}
+                name="phone"
+                required={true}
+                placeholder="Enter phone number including only numbers"
+                type="text"
+              />
+              <Input
+                label="UserName"
+                register={signInRegister("username", { required: true })}
+                name="username"
+                required={true}
+                placeholder="Enter username, which is not necessarilry unique"
+                type="text"
+              />
+              <Input
+                label="Password"
+                register={signInRegister("password", { required: true })}
+                name="password"
+                required={true}
+                placeholder="Enter your password"
+                type="password"
+              />
+              <Input
+                label="Password Confirm"
+                register={signInRegister("passwordconfirm", { required: true })}
+                name="passwordconfirm"
+                required={true}
+                placeholder="Re-enter your password"
+                type="password"
+              />
+              <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
+                Create new account
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleSubmit(onSigninStartValid)}>
+              <Input
+                label="Email or Phone"
+                register={register("emailOrPhone", { required: true })}
+                name="emailOrPhone"
+                required={true}
+                placeholder={"Enter email or phone number to sign in"}
+                type="text"
+              />
+              <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
+                {method}
+              </button>
+            </form>
+          )}
+        </>
+      )}
       <div className="mt-6">
         <div className="relative -top-2 text-center">
           <div>
