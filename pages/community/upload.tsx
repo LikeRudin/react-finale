@@ -1,6 +1,6 @@
 import { NextPage } from "next";
 
-const Upload = () => {
+const Upload: NextPage = () => {
   return (
     <div className="px-4 py-12">
       <label

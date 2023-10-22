@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import Input from "../../component/input";
+import Input from "../components/input";
 import { useForm } from "react-hook-form";
 const Upload: NextPage = () => {
   const { register } = useForm();
