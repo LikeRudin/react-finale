@@ -1,0 +1,15 @@
+export const enum Activity {
+  STREAM = "Stream",
+  MEETUP = "MeetUp",
+  MEETUPLIKE = "MeetUpLike",
+  MEETUPCOMMENT = "MeetUpComment",
+  MEETUPCOMMENTLIKE = "MeetUpCommentLike",
+  REVIEW = "Review",
+  REVIEWLIKE = "ReviewLike",
+  REVIEWCOMMENT = "ReviewComment",
+  REVIEWCOMMENTLIKE = "ReviewCommentLike",
+  POST = "Post",
+  POSTLIKE = "PostLike",
+  COMMENT = "Comment",
+  COMMENTLIKE = "CommentLike",
+}
