@@ -27,7 +27,7 @@ const useUser = <T = any>() => {
         setState({ fetchState: "fail", error });
       })
   );
-  return { ...state, mutate };
+  return { userState: state, mutate };
 };
 
 export default useUser;
