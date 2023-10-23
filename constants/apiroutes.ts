@@ -5,6 +5,8 @@ export const enum APIROUTE {
   ENTER_CREATION = "/api/users",
 
   ANY_USE_USER = "/api/users/me",
+
+  MEETS_CREATION = "/api/meets",
 }
 
 export const enum ROUTE_PATH {
