@@ -26,21 +26,14 @@ model User {
   username String
   password String
   avatar String?
-  record UserRecord?
-  }
-
-model UserRecord {
-  id Int @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int @unique
-
+  
   meetUps MeetUp[]
   meetUpLikes MeetUpLike[]
   meetupComments MeetUpComment[]
   reviews Review[]
   reviewLikes ReviewLike[]
+  reviewComment ReviewComment[]
+  reviewCommentLikes ReviewCommentLike[]
 
   posts Post[]
   postLikes PostLike[]
@@ -50,7 +43,19 @@ model UserRecord {
   streams Stream[]
   streamMessages StreamMessage[]
 
+  activityLogs ActivityLog[]
+  }
 
+model ActivityLog {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int 
+
+  activity Activity 
+  activityId Int
+  @@index([userId])
 }
 
 model MeetUp {
@@ -63,16 +68,17 @@ model MeetUp {
   dDay DateTime
   description String
   isOpened Boolean @default(true)
-  
-  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
-  recordId Int  
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int 
 
   comments MeetUpComment[]
 
   likes MeetUpLike[]
   review Review[]
+  
+  @@index([userId])
 
-  @@index([recordId])
 }
 
 model MeetUpComment {  
@@ -81,14 +87,14 @@ model MeetUpComment {
   updatedAt DateTime @updatedAt
 
   text String @db.MediumText
-
-  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
-  recordId Int
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  
 
   meetUp MeetUp @relation(fields: [meetUpId], references: [id], onDelete: Cascade)
   meetUpId Int
 
-  @@index([recordId])
+  @@index([userId])
   @@index([meetUpId])
 
 
@@ -99,13 +105,12 @@ model MeetUpLike {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
-  recordId Int
-
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  
   meetUp MeetUp @relation(fields: [meetUpId], references: [id], onDelete: Cascade)
   meetUpId Int
 
-  @@index([recordId])
+  @@index([userId])
   @@index([meetUpId])
 }
 
@@ -114,16 +119,18 @@ model Review {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  review String @db.MediumText
+  text String @db.MediumText
+  images String?
 
-  record UserRecord @relation(fields: [recordId], references: [id], onDelete:Cascade)
-  recordId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  
   meetUp MeetUp @relation(fields: [meetUpId], references: [id], onDelete: Restrict)
   meetUpId Int
 
   likes ReviewLike[]
+  comments ReviewComment[]
 
-  @@index([recordId])
+  @@index([userId])
   @@index([meetUpId])
 }
 
@@ -132,14 +139,47 @@ model ReviewLike {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
-  recordId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  
   review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   reviewId Int
   
-  @@index([recordId])
+  @@index([userId])
   @@index([reviewId])
   }
+
+model ReviewComment {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  text String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId Int
+
+  likes ReviewCommentLike[]
+  
+  @@index([userId])
+  @@index([reviewId])
+}
+
+model ReviewCommentLike{
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  
+  review ReviewComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId Int
+  
+  @@index([userId])
+  @@index([commentId])
+
+}
 
 
 model Post {
@@ -147,13 +187,15 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
-  recordId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  
+
+  post String @db.MediumText
 
   comments Comment[]
   likes PostLike[]
 
-  @@index([recordId])
+  @@index([userId])
 
 }
 
@@ -162,14 +204,12 @@ model PostLike {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  text String
-
-  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
-  recordId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int
 
-  @@index([recordId])
+  @@index([userId])
   @@index([postId])
 }
 
@@ -180,15 +220,15 @@ model Comment {
 
   text String @db.MediumText
 
-  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
-  recordId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int
 
   likes CommentLike[]
 
   @@index([postId])
-  @@index([recordId])
+  @@index([userId])
 }
 
 model CommentLike {
@@ -196,13 +236,13 @@ model CommentLike {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  record UserRecord @relation(fields: [recordId], references:[id], onDelete: Cascade)
-  recordId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  
 
   comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
   commentId Int
 
-  @@index([recordId])
+  @@index([userId])
   @@index([commentId])
 }
 
@@ -214,8 +254,8 @@ model Stream {
   name String
   description String @db.MediumText
   
-  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
-  recordId Int 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  
 
   cloudflareId String
   cloudflareUrl String
@@ -223,7 +263,7 @@ model Stream {
 
   messages StreamMessage[]
   
-  @@index([recordId])
+  @@index([userId])
 }
 
 model StreamMessage {
@@ -233,12 +273,28 @@ model StreamMessage {
 
   text String @db.MediumText
 
-  record UserRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
-  recordId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  
 
   stream Stream @relation(fields: [streamId], references: [id], onDelete: Cascade)
   streamId Int
 
-  @@index([recordId])
+  @@index([userId])
   @@index([streamId])
+}
+
+enum Activity{
+  Stream
+  MeetUp
+  MeetUpLike
+  MeetUpComment
+  MeetUpCommentLike
+  Review
+  ReviewLike
+  ReviewComment
+  ReviewCommentLike
+  Post
+  PostLike
+  Comment
+  CommentLike
 }
