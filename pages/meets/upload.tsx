@@ -1,10 +1,43 @@
 import type { NextPage } from "next";
 import Input from "../components/input";
 import { useForm } from "react-hook-form";
+import useMutation from "@/libs/client/useMutation";
+import { APIROUTE } from "@/constants/apiroutes";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+
+interface uploadMeetForm {
+  name: string;
+  scheduleDate: string;
+  scheduleTime: string;
+  description: string;
+  location: string;
+  imagepath?: string;
+}
+
 const Upload: NextPage = () => {
-  const { register } = useForm();
+  const { register, handleSubmit } = useForm<uploadMeetForm>();
+  const [upload, uploadData] = useMutation(APIROUTE.MEETS_CREATION);
+  const router = useRouter();
+  const onValid = (data: uploadMeetForm) => {
+    const {
+      description,
+      name,
+      location,
+      scheduleDate,
+      scheduleTime,
+      imagepath,
+    } = data;
+    const schedule = new Date(`${scheduleDate}T${scheduleTime}`).toISOString();
+    upload({ name, schedule, description, location, imagepath });
+  };
+  useEffect(() => {
+    if (uploadData.fetchState === "ok") {
+      router.replace(`/meets/${uploadData.data}`);
+    }
+  });
   return (
-    <div className="px-4 py-12">
+    <form onSubmit={handleSubmit(onValid)} className="px-4 py-12">
       <label className="w-full h-48  flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-600 hover:text-orange-600 cursor-pointer">
         <svg
           className="h-12 w-12"
@@ -20,7 +53,7 @@ const Upload: NextPage = () => {
             strokeLinejoin="round"
           />
         </svg>
-        <input type="file" className="hidden" />
+        <input {...register("imagepath")} type="file" className="hidden" />
       </label>
       <div className="my-5 flex justify-center space-x-2 px-1">
         <div className="flex items-center flex-start space-x-3 w-[50%] ">
@@ -42,6 +75,7 @@ const Upload: NextPage = () => {
             <span>Date</span>
           </label>
           <input
+            {...register("scheduleDate")}
             type="date"
             className="w-[80%] focus:outline-none h-[85%] focus:ring-orange-800 rounded-md border-gray-400 focus:border-orange-800"
             min={
@@ -71,19 +105,28 @@ const Upload: NextPage = () => {
             <span>Time</span>
           </label>
           <input
+            {...register("scheduleTime")}
             type="time"
             className="w-[80%] focus:outline-none h-[85%] focus:ring-orange-800 rounded-md border-gray-400 focus:border-orange-800"
             required
           />
         </div>
       </div>
-      <div className="mb-2">
+      <div className="mb-2 space-y-2">
         <Input
-          label="Title"
+          label="name"
           name="title-input"
-          register={register("title", { required: true })}
+          register={register("name", { required: true })}
           required={true}
           placeholder="Title of Meet Up"
+          type="text"
+        />
+        <Input
+          label="Location"
+          name="location-input"
+          register={register("location", { required: true })}
+          required={true}
+          placeholder="location to Meet"
           type="text"
         />
       </div>
@@ -96,6 +139,7 @@ const Upload: NextPage = () => {
         </label>
         <div>
           <textarea
+            {...register("description", { required: true })}
             id="description-textarea"
             rows={4}
             className="mt-1 shaodw-sm w-full focus:ring-orange-800 focus:ring-2 focus:ring-offset-1  rounded-md  border-gray-400 focus:border-transparent"
@@ -105,7 +149,7 @@ const Upload: NextPage = () => {
       <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
         Upload MeetUp
       </button>
-    </div>
+    </form>
   );
 };
 
