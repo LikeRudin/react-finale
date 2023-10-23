@@ -30,9 +30,11 @@ const useMutation = <T = any>(url: string): useMetationResult<T> => {
           ok
             ? setState({ fetchState: "ok", data })
             : setState({ fetchState: "fail", error: error as string });
+          return parsed;
         })
         .catch((error) => {
           setState({ fetchState: "fail", error });
+          return error;
         });
     }
   );

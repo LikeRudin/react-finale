@@ -5,7 +5,7 @@ type HTTPMethod = "GET" | "POST" | "DELETE" | "PUT" | "PATCH";
 interface ApiRequestOptions {
   methods: HTTPMethod[];
   handler: NextApiHandler;
-  isPrivate: boolean;
+  isPrivate?: boolean;
 }
 
 type ResponseType = { ok: true; data: any } | { ok: false; error: any };
