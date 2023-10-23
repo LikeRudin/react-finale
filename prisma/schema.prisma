@@ -54,20 +54,35 @@ model MeetUp {
   
   name String
   image String?
-  dDay DateTime
-  description String
+  schedule DateTime
+  description String @db.MediumText
+
   isOpened Boolean @default(true)
+  images MeetupImage[]
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int 
 
-  comments MeetUpComment[]
 
+  comments MeetUpComment[]
+  
   likes MeetUpLike[]
   review Review[]
   
   @@index([userId])
 
+}
+
+model MeetupImage {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  meetUp MeetUp @relation(fields: [meetUpId], references:[id])
+  meetUpId Int
+  path String
+
+  @@index([meetUpId])
 }
 
 model MeetUpComment {  
@@ -83,6 +98,11 @@ model MeetUpComment {
   meetUp MeetUp @relation(fields: [meetUpId], references: [id], onDelete: Cascade)
   meetUpId Int
 
+  parentId Int? 
+  parent MeetUpComment? @relation("commentToComment", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  replies MeetUpComment[] @relation("commentToComment")
+
+  @@index([parentId])
   @@index([userId])
   @@index([meetUpId])
 
@@ -109,7 +129,7 @@ model Review {
   updatedAt DateTime @updatedAt
 
   text String @db.MediumText
-  images String?
+  images ReviewImage[]
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  
@@ -122,6 +142,22 @@ model Review {
   @@index([userId])
   @@index([meetUpId])
 }
+
+
+model ReviewImage {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  path String
+
+  review Review @relation(fields: [reviewId], references:[id], onDelete: Cascade)
+  reviewId Int
+
+  
+  @@index([reviewId])
+}
+
 
 model ReviewLike { 
   id Int @id @default(autoincrement())
@@ -149,8 +185,13 @@ model ReviewComment {
   review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   reviewId Int
 
+  parentId Int? 
+  parent ReviewComment? @relation("commentToComment", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  replies ReviewComment[] @relation("commentToComment")
+
   likes ReviewCommentLike[]
   
+  @@index([parentId])
   @@index([userId])
   @@index([reviewId])
 }
@@ -179,12 +220,31 @@ model Post {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  
 
+  parentId Int? 
+  parent Post? @relation("commentToComment", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  replies Post[] @relation("commentToComment")
+
+
   post String @db.MediumText
+  images PostImage[]
+  
 
   comments Comment[]
   likes PostLike[]
 
   @@index([userId])
+  @@index([parentId])
+
+}
+model PostImage{
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int
+
+  @@index([postId])
 
 }
 
@@ -214,8 +274,13 @@ model Comment {
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int
 
+  parentId Int? 
+  parent Comment? @relation("commentToComment", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  replies Comment[] @relation("commentToComment")
+
   likes CommentLike[]
 
+  @@index([parentId])
   @@index([postId])
   @@index([userId])
 }
@@ -276,11 +341,13 @@ model ActivityLog {
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int 
 
-  activity Activity 
+  type Activity 
   activityId Int
+
   @@index([userId])
 }
 
@@ -306,10 +373,11 @@ model Notification {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  type OthersReaction  
+  sednerId Int
+
   receiver User @relation(fields: [receiverId], references: [id], onDelete: Cascade)
   receiverId Int 
-
-  type OthersReaction
 
   @@index([receiverId])
 
