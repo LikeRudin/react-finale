@@ -53,6 +53,7 @@ model MeetUp {
   updatedAt DateTime @updatedAt
   
   name String
+  location String
   image String?
   schedule DateTime
   description String @db.MediumText
