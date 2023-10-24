@@ -18,6 +18,7 @@ const handler: structuredNextApiHandler = async (req, res) => {
   if (!user) {
     return res.status(404).json({ ok: false, error: "로그인을 먼저 해주세요" });
   }
+
   const newMeetUp = await client.meetUp.create({
     data: {
       name,
