@@ -29,6 +29,7 @@ model User {
   
   meetUps MeetUp[]
   meetUpLikes MeetUpLike[]
+  meetUpJoins MeetUpJoin[]
   meetupComments MeetUpComment[]
   reviews Review[]
   reviewLikes ReviewLike[]
@@ -57,14 +58,15 @@ model MeetUp {
   image String?
   schedule DateTime
   description String @db.MediumText
+  viewCount Int @default(0)
 
   isOpened Boolean @default(true)
-  images MeetupImage[]
+  imagepath String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int 
 
-
+  joins MeetUpJoin[]
   comments MeetUpComment[]
   
   likes MeetUpLike[]
@@ -73,17 +75,19 @@ model MeetUp {
   @@index([userId])
 
 }
-
-model MeetupImage {
+model MeetUpJoin {
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  meetUp MeetUp @relation(fields: [meetUpId], references:[id])
+  meetUp MeetUp @relation(fields: [meetUpId], references: [id], onDelete: Cascade)
   meetUpId Int
-  path String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int 
 
   @@index([meetUpId])
+  @@index([userId])
 }
 
 model MeetUpComment {  
@@ -366,6 +370,7 @@ enum Activity{
   PostLike
   Comment
   CommentLike
+  MeetUpJoin
 }
 
 
@@ -396,4 +401,5 @@ enum OthersReaction {
   PostLike
   Comment
   CommentLike
+  MeetUpJoin
 }
