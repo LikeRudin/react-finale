@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import useMutation from "@/libs/client/useMutation";
-import Input from "../component/input";
+import Input from "./components/input";
 import { APIROUTE } from "@/constants/apiroutes";
 import Router from "next/router";
-
-function cls(...classnames: string[]) {
-  return classnames.join(" ");
-}
+import cls from "@/libs/util/cls";
+import SubmitButton from "./components/submit-button";
 
 interface EnterForm {
   emailOrPhone: string;
@@ -108,9 +106,7 @@ export default function Enter() {
                   placeholder="password"
                   type="password"
                 />
-                <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
-                  {method}
-                </button>
+                <SubmitButton text={method} />
               </form>
               {passwordData.fetchState === "fail" && (
                 <p>{JSON.stringify(passwordData.error)}</p>

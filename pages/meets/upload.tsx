@@ -5,6 +5,8 @@ import useMutation from "@/libs/client/useMutation";
 import { APIROUTE } from "@/constants/apiroutes";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import TextArea from "../components/textarea";
+import SubmitButton from "../components/submit-button";
 
 interface uploadMeetForm {
   name: string;
@@ -130,25 +132,13 @@ const Upload: NextPage = () => {
           type="text"
         />
       </div>
-      <div>
-        <label
-          htmlFor="description-textarea"
-          className="mb-1 block text-sm font-medium text-gray-800"
-        >
-          Description
-        </label>
-        <div>
-          <textarea
-            {...register("description", { required: true })}
-            id="description-textarea"
-            rows={4}
-            className="mt-1 shaodw-sm w-full focus:ring-orange-800 focus:ring-2 focus:ring-offset-1  rounded-md  border-gray-400 focus:border-transparent"
-          />
-        </div>
-      </div>
-      <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
-        Upload MeetUp
-      </button>
+      <TextArea
+        register={register("description", { required: true })}
+        name="description-textarea"
+        label="Description"
+        required={true}
+      />
+      <SubmitButton text="Upload MeetUp" />
     </form>
   );
 };

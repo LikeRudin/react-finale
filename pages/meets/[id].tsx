@@ -3,14 +3,25 @@ import Layout from "../components/layout";
 import useUser from "@/libs/client/useUser";
 import client from "@/libs/server/prisma-client";
 import { MeetUp } from "@prisma/client";
+import TextArea from "../components/textarea";
+import { useForm } from "react-hook-form";
+import SubmitButton from "../components/submit-button";
 
 interface MeetDetailProps {
   meetUp: MeetUp & { user: { username: string } };
 }
 
+interface ReplyForm {
+  reply: string;
+}
+
 const MeetDetail: NextPage<MeetDetailProps> = ({ meetUp }) => {
   const { userState, mutate } = useUser();
+  const { register, handleSubmit } = useForm<ReplyForm>();
 
+  const onValid = ({ reply }: ReplyForm) => {
+    console.log(reply);
+  };
   return (
     <Layout hasBack seoTitle="meetUp" title={meetUp?.name}>
       <div className="wrapper px-4 py-10">
@@ -29,9 +40,16 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUp }) => {
           </div>
           <div className="descriptionBox mt-4 space-y-2">
             <h1 className="text-3xl font-bold text-gray-800">{meetUp?.name}</h1>
-            <span className="text 3xl block text-gray-900">
-              {meetUp?.schedule.toString()}
+            <span className="text-xl block text-gray-900">
+              장소: {meetUp?.location}
             </span>
+            <span className="text-xl block text-gray-900">
+              {meetUp?.schedule
+                .toString()
+                .split("T")
+                .map((word, index) => (!index ? `${word} ` : word.slice(0, 5)))}
+            </span>
+            <span className="text-md">조회수:{meetUp?.viewCount}</span>
             <p className="my-6 text-gray-700">{meetUp?.description}</p>
             <div className="w-full flex items-center px-1 space-x-1">
               <button className="flex-1 bg-orange-700 text-white py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-800 font-medium hover:bg-orange-800">
@@ -57,19 +75,24 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUp }) => {
             </div>
           </div>
         </div>
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">other meets</h2>
-          <div className="grid grid-cols-2 gap-4 mt-6">
-            {[1, 2, 3, 4, 5, 6].map((item) => (
-              <div key={item} className="space-y-1">
-                <div className="h-52 w-full my-2 rounded-lg bg-orange-400" />
-                <h3 className="text-gray-700">Mogakko</h3>
-                <p className="text-sm font-medium text-gray-900">YYYY-MM-DD</p>
-              </div>
-            ))}
+        <div className="flex items-start space-x-3 px-2 border-b border-b-gray-200 mb-1">
+          <div className="w-8 h-8 mt-1  bg-slate-300 rounded-full" />
+          <div>
+            <span className="text-sm block font-medium text-gray-800">린</span>
+            <span className="text-xs text-gray-600 mt-1">2시간 전</span>
+            <p className="text-gray-800 mt-2">족발은 이제 그만..!</p>
           </div>
         </div>
       </div>
+      <form onSubmit={handleSubmit(onValid)}>
+        <TextArea
+          register={register("reply", { required: true })}
+          label="Reply"
+          required={true}
+          name="reply-textarea"
+        />
+        <SubmitButton text="Add Reply" />
+      </form>
     </Layout>
   );
 };
@@ -83,21 +106,26 @@ export const getStaticPaths: GetStaticPaths = () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async (ctx) => {
-  if (!ctx?.params?.id) {
+export const getStaticProps: GetStaticProps = async (context) => {
+  if (!context?.params?.id) {
     return { props: {} };
   }
+  await client.meetUp.update({
+    where: {
+      id: +context.params.id.toString(),
+    },
+    data: {
+      viewCount: { increment: 1 },
+    },
+  });
   const meetUpHere = await client.meetUp.findUnique({
     where: {
-      id: +ctx.params.id.toString(),
+      id: +context.params.id.toString(),
     },
     include: {
       user: {
         select: {
-          id: true,
           username: true,
-          avatar: true,
-          meetUps: true,
         },
       },
     },

@@ -59,7 +59,7 @@ const Community: NextPage = () => {
             </div>
           </div>
         ))}
-        <Button tooltip="New Post" />
+        <Button tooltip="New Post" linkAddress="/community/upload" />
       </div>
     </Layout>
   );

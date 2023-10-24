@@ -75,7 +75,7 @@ const Home: NextPage = () => {
             </div>
           </div>
         ))}
-        <Button tooltip="New MeetUp" />
+        <Button tooltip="New MeetUp" linkAddress="/meets/upload" />
       </div>
     </Layout>
   );
