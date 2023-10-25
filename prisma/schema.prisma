@@ -70,7 +70,7 @@ model MeetUp {
   comments MeetUpComment[]
   
   likes MeetUpLike[]
-  review Review[]
+  reviews Review[]
   
   @@index([userId])
 
@@ -359,16 +359,22 @@ model ActivityLog {
 enum Activity{
   Stream
   MeetUp
+  MeetUpEdit
   MeetUpLike
   MeetUpComment
+  MeetUpCommentEdit
   MeetUpCommentLike
   Review
+  ReviewEdit
   ReviewLike
   ReviewComment
+  ReviewCommentEdit
   ReviewCommentLike
   Post
+  PostEdit
   PostLike
   Comment
+  CommentEdit
   CommentLike
   MeetUpJoin
 }
@@ -394,6 +400,7 @@ enum OthersReaction {
   MeetUpLike
   MeetUpComment
   MeetUpCommentLike
+  MeetUpCommentReply
   Review
   ReviewLike
   ReviewComment
