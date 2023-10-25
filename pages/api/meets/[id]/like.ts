@@ -15,23 +15,32 @@ const handler: structuredNextApiHandler = async (req, res) => {
       .json({ ok: false, error: "잘못된 접근 요청입니다." });
   }
 
-  const exist = await client.meetUpLike.findFirst({
+  const meetUp = await client.meetUp.findUnique({
+    where: {
+      id: +id.toString(),
+    },
+  });
+  if (!meetUp) {
+    return res.status(404).json({ ok: false, error: "삭제된 MeetUp입니다." });
+  }
+
+  const likeExist = await client.meetUpLike.findFirst({
     where: {
       meetUpId: +id.toString(),
       userId: user.id,
     },
   });
 
-  if (exist) {
+  if (likeExist) {
     await client.meetUpLike.delete({
       where: {
-        id: exist.id,
+        id: likeExist.id,
       },
     });
     return res.status(202).json({ ok: true, data: "좋아요를 취소했습니다." });
   }
 
-  const operations = [
+  const transaction = await client.$transaction([
     client.meetUpLike.create({
       data: {
         user: {
@@ -54,12 +63,21 @@ const handler: structuredNextApiHandler = async (req, res) => {
             id: user.id,
           },
         },
-        activityId: +id,
+        placeId: +id.toString(),
       },
     }),
-  ];
+    client.notification.create({
+      data: {
+        type: "MeetUpLike",
+        senderId: user.id,
+        placeId: +id.toString(),
+        receiver: {
+          connect: { id: meetUp.userId },
+        },
+      },
+    }),
+  ]);
 
-  const transaction = await client.$transaction(operations);
   if (!transaction) {
     return res
       .status(500)

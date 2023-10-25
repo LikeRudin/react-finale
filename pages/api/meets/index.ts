@@ -40,7 +40,7 @@ const handler: structuredNextApiHandler = async (req, res) => {
   const newActivity = await client.activityLog.create({
     data: {
       type: "MeetUp",
-      activityId: newMeetUp.id,
+      placeId: newMeetUp.id,
       user: {
         connect: { id: user.id },
       },

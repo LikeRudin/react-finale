@@ -105,7 +105,7 @@ model MeetUpComment {
 
   parentId Int? 
   parent MeetUpComment? @relation("commentToComment", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  replies MeetUpComment[] @relation("commentToComment")
+  comments MeetUpComment[] @relation("commentToComment")
 
   @@index([parentId])
   @@index([userId])
@@ -192,7 +192,7 @@ model ReviewComment {
 
   parentId Int? 
   parent ReviewComment? @relation("commentToComment", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  replies ReviewComment[] @relation("commentToComment")
+  comments ReviewComment[] @relation("commentToComment")
 
   likes ReviewCommentLike[]
   
@@ -227,7 +227,7 @@ model Post {
 
   parentId Int? 
   parent Post? @relation("commentToComment", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  replies Post[] @relation("commentToComment")
+  posts Post[] @relation("commentToComment")
 
 
   post String @db.MediumText
@@ -281,7 +281,7 @@ model Comment {
 
   parentId Int? 
   parent Comment? @relation("commentToComment", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  replies Comment[] @relation("commentToComment")
+  comments Comment[] @relation("commentToComment")
 
   likes CommentLike[]
 
@@ -351,7 +351,7 @@ model ActivityLog {
   userId Int 
 
   type Activity 
-  activityId Int
+  placeId Int
 
   @@index([userId])
 }
@@ -380,7 +380,8 @@ model Notification {
   updatedAt DateTime @updatedAt
 
   type OthersReaction  
-  sednerId Int
+  senderId Int
+  placeId Int
 
   receiver User @relation(fields: [receiverId], references: [id], onDelete: Cascade)
   receiverId Int 
