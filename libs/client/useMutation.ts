@@ -1,43 +1,43 @@
-import { useState } from "react";
 import useSWRMutation from "swr/mutation";
+import { HTTPMethod } from "../server/request-validator";
 
 type UseMutationState<T> =
-  | { fetchState: "ok"; data: T }
-  | { fetchState: "fail"; error: object | string }
-  | { fetchState: "loading" };
+  | { status: "ok"; data: T }
+  | { status: "fail"; error: object | string }
+  | { status: "error"; error: object | string }
+  | { status: "loading" };
 
 type useMetationResult<T> = [(data: any) => void, UseMutationState<T>];
 
-const useMutation = <T = any>(url: string): useMetationResult<T> => {
-  const [state, setState] = useState<UseMutationState<T>>({
-    fetchState: "loading",
-  });
-
-  const { trigger } = useSWRMutation(
-    url,
-    async (url, { arg }: { arg: { requestData: string } }) => {
-      setState({ fetchState: "loading" });
-      return fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(arg),
+const useMutation = <T = any>(
+  url: string,
+  type: HTTPMethod
+): useMetationResult<T> => {
+  const { trigger, data, error } = useSWRMutation(url, async (url, { arg }) => {
+    return fetch(url, {
+      method: `${type}`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(arg),
+    })
+      .then((response) => response.json())
+      .then((parsed) => {
+        if (parsed.ok) {
+          return { status: "ok", data: parsed.data };
+        } else {
+          return { status: "fail", error: parsed.error as string };
+        }
       })
-        .then((response) => response.json())
-        .then((parsed) => {
-          const { ok, data, error } = parsed;
-          ok
-            ? setState({ fetchState: "ok", data })
-            : setState({ fetchState: "fail", error: error as string });
-          return parsed;
-        })
-        .catch((error) => {
-          setState({ fetchState: "fail", error });
-          return error;
-        });
-    }
-  );
+      .catch((error) => {
+        return error;
+      });
+  });
+  const state = data
+    ? data
+    : error
+    ? { status: "error", error }
+    : { status: "loading" };
   return [trigger, { ...state }];
 };
 
