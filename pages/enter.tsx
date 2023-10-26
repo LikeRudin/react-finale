@@ -27,16 +27,28 @@ export default function Enter() {
   const [method, setMethod] = useState<"Login" | "Sign-in">("Login");
 
   const { register, handleSubmit, reset } = useForm<EnterForm>();
-  const [loginStart, loginData] = useMutation(APIROUTE.ENTER_LOGIN);
-  const [signInStart, signInData] = useMutation(APIROUTE.ENTER_SIGNIN);
+  const { trigger: loginStart, state: loginData } = useMutation(
+    APIROUTE.ENTER_LOGIN,
+    "POST"
+  );
+  const { trigger: signInStart, state: signInData } = useMutation(
+    APIROUTE.ENTER_SIGNIN,
+    "POST"
+  );
 
   const { register: passwordRegister, handleSubmit: handlePasswordSubmit } =
     useForm<PasswordForm>();
-  const [confirmPassword, passwordData] = useMutation(APIROUTE.ENTER_PASSWORD);
+  const { trigger: confirmPassword, state: passwordData } = useMutation(
+    APIROUTE.ENTER_PASSWORD,
+    "POST"
+  );
 
   const { register: signInRegister, handleSubmit: handleSigninSubmit } =
     useForm<SignInForm>();
-  const [createAccount, accountData] = useMutation(APIROUTE.ENTER_CREATION);
+  const { trigger: createAccount, state: accountData } = useMutation(
+    APIROUTE.ENTER_CREATION,
+    "POST"
+  );
 
   const onLoginClick = () => setMethod("Login");
   const onSigninClick = () => setMethod("Sign-in");
@@ -57,7 +69,7 @@ export default function Enter() {
   };
 
   useEffect(() => {
-    if (passwordData.fetchState === "ok" || accountData.fetchState === "ok") {
+    if (passwordData.status === "ok" || accountData.status === "ok") {
       Router.push("/");
     }
   }, [passwordData, signInData]);
@@ -95,7 +107,7 @@ export default function Enter() {
       </div>
       {method === "Login" && (
         <>
-          {loginData.fetchState === "ok" ? (
+          {loginData.status === "ok" ? (
             <>
               <form onSubmit={handlePasswordSubmit(onPasswordValid)}>
                 <Input
@@ -108,7 +120,7 @@ export default function Enter() {
                 />
                 <SubmitButton text={method} />
               </form>
-              {passwordData.fetchState === "fail" && (
+              {passwordData.status === "fail" && (
                 <p>{JSON.stringify(passwordData.error)}</p>
               )}
             </>
@@ -127,7 +139,7 @@ export default function Enter() {
                   {method}
                 </button>
               </form>
-              {loginData.fetchState === "fail" && (
+              {loginData.status === "fail" && (
                 <p>{JSON.stringify(loginData.error)}</p>
               )}
             </>
@@ -136,7 +148,7 @@ export default function Enter() {
       )}
       {method === "Sign-in" && (
         <>
-          {signInData.fetchState === "ok" ? (
+          {signInData.status === "ok" ? (
             <>
               <form onSubmit={handleSigninSubmit(onSigninValid)}>
                 <Input
@@ -185,7 +197,7 @@ export default function Enter() {
                   Create new account
                 </button>
               </form>
-              {accountData.fetchState === "fail" && (
+              {accountData.status === "fail" && (
                 <p>{JSON.stringify(accountData.error)}</p>
               )}
             </>
@@ -205,7 +217,7 @@ export default function Enter() {
                 </button>
               </form>
 
-              {signInData.fetchState === "fail" && (
+              {signInData.status === "fail" && (
                 <p>{JSON.stringify(signInData.error)}</p>
               )}
             </>
