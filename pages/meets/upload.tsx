@@ -19,7 +19,7 @@ interface uploadMeetForm {
 
 const Upload: NextPage = () => {
   const { register, handleSubmit } = useForm<uploadMeetForm>();
-  const [upload, uploadData] = useMutation(APIROUTE.MEETS_CREATION);
+  const { trigger, state } = useMutation(APIROUTE.MEETS_INDEX, "POST");
   const router = useRouter();
   const onValid = (data: uploadMeetForm) => {
     const {
@@ -31,11 +31,11 @@ const Upload: NextPage = () => {
       imagepath,
     } = data;
     const schedule = new Date(`${scheduleDate}T${scheduleTime}`).toISOString();
-    upload({ name, schedule, description, location, imagepath });
+    trigger({ name, schedule, description, location, imagepath });
   };
   useEffect(() => {
-    if (uploadData.fetchState === "ok") {
-      router.replace(`/meets/${uploadData.data}`);
+    if (state.status === "ok") {
+      router.replace(`/meets/${state.data}`);
     }
   });
   return (

@@ -1,11 +1,18 @@
 import { GetStaticPaths, GetStaticProps, NextPage } from "next";
-import Layout from "../components/layout";
-import useUser from "@/libs/client/useUser";
-import client from "@/libs/server/prisma-client";
-import { MeetUp } from "@prisma/client";
-import TextArea from "../components/textarea";
+import { useRouter } from "next/router";
+
 import { useForm } from "react-hook-form";
+import type { MeetUp } from "@prisma/client";
+
+import TextArea from "../components/textarea";
+import Layout from "../components/layout";
 import SubmitButton from "../components/submit-button";
+
+import client from "@/libs/server/prisma-client";
+import useUser from "@/libs/client/useUser";
+import useMutation from "@/libs/client/useMutation";
+
+import { APIROUTE } from "@/constants/apiroutes";
 
 interface MeetDetailProps {
   meetUp: MeetUp & { user: { username: string } };
@@ -16,11 +23,31 @@ interface ReplyForm {
 }
 
 const MeetDetail: NextPage<MeetDetailProps> = ({ meetUp }) => {
-  const { userState, mutate } = useUser();
+  const router = useRouter();
+  const [mutate, user] = useUser();
   const { register, handleSubmit } = useForm<ReplyForm>();
+  const { trigger: likeTrigger, state: likeState } = useMutation(
+    APIROUTE.MEETS_LIKE(String(router.query.id)),
+    "POST"
+  );
+  const { trigger: joinTrigger, state: joinState } = useMutation(
+    APIROUTE.MEETS_JOIN(String(router.query.id)),
+    "POST"
+  );
+
+  const { trigger: commentTrigger, state: commentState } = useMutation(
+    APIROUTE.MEETS_COMMENTS(String(router.query.id)),
+    "POST"
+  );
 
   const onValid = ({ reply }: ReplyForm) => {
-    console.log(reply);
+    commentTrigger({ reply });
+  };
+  const onLikeClick = () => {
+    likeTrigger();
+  };
+  const onJoinClick = () => {
+    joinTrigger();
   };
   return (
     <Layout hasBack seoTitle="meetUp" title={meetUp?.name}>
@@ -52,10 +79,16 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUp }) => {
             <span className="text-md">조회수:{meetUp?.viewCount}</span>
             <p className="my-6 text-gray-700">{meetUp?.description}</p>
             <div className="w-full flex items-center px-1 space-x-1">
-              <button className="flex-1 bg-orange-700 text-white py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-800 font-medium hover:bg-orange-800">
+              <button
+                className="flex-1 bg-orange-700 text-white py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-800 font-medium hover:bg-orange-800"
+                onClick={onJoinClick}
+              >
                 Join this meet
               </button>
-              <button className="py-2 px-2 aspect-square rounded-md justify-center items-center text-gray-700 bg-color-gray-200 hover:bg-gray-300 group">
+              <button
+                className="py-2 px-2 aspect-square rounded-md justify-center items-center text-gray-700 bg-color-gray-200 hover:bg-gray-300 group"
+                onClick={onLikeClick}
+              >
                 <svg
                   className="h-6 w-6 group-hover:fill-red-500"
                   xmlns="http://www.w3.org/2000/svg"
