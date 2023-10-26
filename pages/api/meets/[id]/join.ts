@@ -37,15 +37,15 @@ const handler: structuredNextApiHandler = async (req, res) => {
         id: joinExist.id,
       },
     });
-    return res.status(202).json({ ok: true, data: "좋아요를 취소했습니다." });
+    return res.status(202).json({ ok: true, data: "참여를 취소했습니다." });
   }
 
   const transaction = await client.$transaction([
-    client.meetUpLike.create({
+    client.meetUpJoin.create({
       data: {
         user: {
           connect: {
-            id: +user.id,
+            id: user.id,
           },
         },
         meetUp: {
