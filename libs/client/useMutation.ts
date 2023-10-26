@@ -7,7 +7,10 @@ type UseMutationState<T> =
   | { status: "error"; error: object | string }
   | { status: "loading" };
 
-type useMetationResult<T> = [(data: any) => void, UseMutationState<T>];
+type useMetationResult<T> = {
+  trigger: (data?: any) => void;
+  state: UseMutationState<T>;
+};
 
 const useMutation = <T = any>(
   url: string,
@@ -38,7 +41,7 @@ const useMutation = <T = any>(
     : error
     ? { status: "error", error }
     : { status: "loading" };
-  return [trigger, { ...state }];
+  return { trigger, state };
 };
 
 export default useMutation;
