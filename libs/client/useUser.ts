@@ -3,22 +3,22 @@ import { APIROUTE } from "@/constants/apiroutes";
 import type { KeyedMutator } from "swr";
 
 type UseUserState<T> =
-  | { status: "ok"; data: T }
+  | { status: "ok"; userData: T; mutate: KeyedMutator<any> }
   | { status: "fail"; error: object | string }
   | { status: "error"; error: object | string }
   | { status: "loading" };
 
-type UserSWR<T> = [mutate: KeyedMutator<any>, user: UseUserState<T>];
+type UserSWR<T> = UseUserState<T>;
 
 const useUser = <T = any>(): UserSWR<T> => {
-  const { mutate, data, error } = useSWR(APIROUTE.ANY_USE_USER, (url: string) =>
+  const { data, error, mutate } = useSWR(APIROUTE.ANY_USE_USER, (url: string) =>
     fetch(url)
       .then((response) => response.json())
       .then((parsed) => {
         const { ok, data, error } = parsed;
         const result = ok
-          ? { fetchState: "ok", user: data }
-          : { fetchState: "fail", error: error as string };
+          ? { status: "ok", userData: data }
+          : { status: "fail", error: error as string };
         return result;
       })
       .catch((error) => {
@@ -26,11 +26,11 @@ const useUser = <T = any>(): UserSWR<T> => {
       })
   );
   const user: UseUserState<T> = data
-    ? data
+    ? { ...data, mutate }
     : error
     ? { status: "error", error }
     : { status: "loading" };
-  return [mutate, user];
+  return user;
 };
 
 export default useUser;

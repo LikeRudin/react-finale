@@ -1,6 +1,6 @@
 import { NextApiHandler } from "next";
 
-type HTTPMethod = "GET" | "POST" | "DELETE" | "PUT" | "PATCH";
+export type HTTPMethod = "GET" | "POST" | "DELETE" | "PUT" | "PATCH";
 
 interface ApiRequestOptions {
   methods: HTTPMethod[];
