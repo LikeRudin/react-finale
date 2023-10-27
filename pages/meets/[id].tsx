@@ -1,18 +1,21 @@
-import { GetStaticPaths, GetStaticProps, NextPage } from "next";
+import { GetServerSideProps, NextPage } from "next";
 import { useRouter } from "next/router";
+import { useSWRConfig } from "swr";
 
 import { useForm } from "react-hook-form";
-import type { MeetUp } from "@prisma/client";
-
 import TextArea from "../components/textarea";
 import Layout from "../components/layout";
 import SubmitButton from "../components/submit-button";
 
 import client from "@/libs/server/prisma-client";
+import type { MeetUp, MeetUpLike } from "@prisma/client";
+
 import useUser from "@/libs/client/useUser";
 import useMutation from "@/libs/client/useMutation";
 
 import { APIROUTE } from "@/constants/apiroutes";
+import { useEffect, useState } from "react";
+import cls from "@/libs/util/cls";
 
 interface MeetDetailProps {
   meetUp: MeetUp & { user: { username: string } };
@@ -24,7 +27,9 @@ interface ReplyForm {
 
 const MeetDetail: NextPage<MeetDetailProps> = ({ meetUp }) => {
   const router = useRouter();
-  const [mutate, user] = useUser();
+  const user = useUser();
+  const [isLiked, setIsLiked] = useState(false);
+
   const { register, handleSubmit } = useForm<ReplyForm>();
   const { trigger: likeTrigger, state: likeState } = useMutation(
     APIROUTE.MEETS_LIKE(String(router.query.id)),
@@ -43,12 +48,61 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUp }) => {
   const onValid = ({ reply }: ReplyForm) => {
     commentTrigger({ reply });
   };
-  const onLikeClick = () => {
-    likeTrigger();
+  const onLikeClick = async () => {
+    if (user.status !== "ok") {
+      return;
+    }
+    await likeTrigger();
+    user.mutate((prev) => {
+      if (
+        prev.userData.meetUpLikes.some(
+          (item: MeetUpLike) => item.meetUpId === +String(router?.query?.id)
+        )
+      ) {
+        return {
+          ...prev,
+          userData: {
+            ...prev.userData,
+            meetUpLikes: prev.userData.meetUpLikes.filter(
+              (item) => item.meetUpId !== +String(router?.query?.id)
+            ),
+          },
+        };
+      } else {
+        return {
+          ...prev,
+          userData: {
+            ...prev.userData,
+            meetUpLikes: [
+              ...prev.userData.meetUpLikes,
+              {
+                meetUpId: +String(router?.query?.id),
+              },
+            ],
+          },
+        };
+      }
+    }, true);
+    setIsLiked(
+      user.userData.meetUpLikes.some(
+        (item: MeetUpLike) => item.meetUpId === +router?.query?.id?.toString()
+      )
+    );
   };
   const onJoinClick = () => {
     joinTrigger();
   };
+
+  useEffect(() => {
+    if (user.status === "ok") {
+      setIsLiked(
+        user?.userData?.meetUpLikes.some(
+          (item: MeetUpLike) => item.meetUpId === +router?.query?.id?.toString()
+        )
+      );
+    }
+  }, [user, isLiked, setIsLiked, router, onLikeClick]);
+
   return (
     <Layout hasBack seoTitle="meetUp" title={meetUp?.name}>
       <div className="wrapper px-4 py-10">
@@ -90,7 +144,12 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUp }) => {
                 onClick={onLikeClick}
               >
                 <svg
-                  className="h-6 w-6 group-hover:fill-red-500"
+                  className={cls(
+                    "h-6 w-6",
+                    isLiked
+                      ? "fill-red-500  group-hover:fill-gray-400"
+                      : "fill-gray-400 group-hover:fill-red-500"
+                  )}
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -116,44 +175,40 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUp }) => {
             <p className="text-gray-800 mt-2">족발은 이제 그만..!</p>
           </div>
         </div>
+        <form onSubmit={handleSubmit(onValid)}>
+          <TextArea
+            register={register("reply", { required: true })}
+            label="Reply"
+            required={true}
+            name="reply-textarea"
+          />
+          <SubmitButton text="Add Reply" />
+        </form>
       </div>
-      <form onSubmit={handleSubmit(onValid)}>
-        <TextArea
-          register={register("reply", { required: true })}
-          label="Reply"
-          required={true}
-          name="reply-textarea"
-        />
-        <SubmitButton text="Add Reply" />
-      </form>
     </Layout>
   );
 };
 
 export default MeetDetail;
 
-export const getStaticPaths: GetStaticPaths = () => {
-  return {
-    paths: [],
-    fallback: true,
-  };
-};
-
-export const getStaticProps: GetStaticProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   if (!context?.params?.id) {
     return { props: {} };
   }
+
+  const pageId = context.params.id.toString();
+
   await client.meetUp.update({
     where: {
-      id: +context.params.id.toString(),
+      id: +pageId,
     },
     data: {
       viewCount: { increment: 1 },
     },
   });
-  const meetUpHere = await client.meetUp.findUnique({
+  const meetUp = await client.meetUp.findUnique({
     where: {
-      id: +context.params.id.toString(),
+      id: +pageId,
     },
     include: {
       user: {
@@ -161,11 +216,22 @@ export const getStaticProps: GetStaticProps = async (context) => {
           username: true,
         },
       },
+      likes: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+        },
+      },
     },
   });
+
   return {
     props: {
-      meetUp: JSON.parse(JSON.stringify(meetUpHere)),
+      meetUp: JSON.parse(JSON.stringify(meetUp)),
     },
   };
 };
