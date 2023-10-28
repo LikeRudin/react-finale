@@ -1,11 +1,13 @@
-import type { UseFormRegisterReturn } from "react-hook-form";
+import type { UseFormRegisterReturn, UseFormSetValue } from "react-hook-form";
 
 interface TextAreaProps {
   label: string;
   name: string;
   register: UseFormRegisterReturn;
+  setValue?: UseFormSetValues<Text>;
   required: boolean;
   placeholder?: string;
+  value: string;
 }
 
 const TextArea = ({
@@ -14,7 +16,16 @@ const TextArea = ({
   register,
   placeholder,
   required = true,
+  setValue,
+  value,
 }: TextAreaProps) => {
+  if (setValue) {
+    setValue(name, value);
+  }
+  const onChange = (e) => {
+    const value = setValue(name, e.target.value);
+  };
+
   return (
     <div className=" mt-2">
       <label
@@ -31,6 +42,7 @@ const TextArea = ({
           required={required}
           placeholder={placeholder}
           {...register}
+          onChange={onChange}
         />
       </div>
     </div>
