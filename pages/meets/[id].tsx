@@ -1,14 +1,20 @@
 import { GetServerSideProps, NextPage } from "next";
 import { useRouter } from "next/router";
-import { useSWRConfig } from "swr";
+
+import useSWR from "swr";
 
 import { useForm } from "react-hook-form";
 import TextArea from "../components/textarea";
 import Layout from "../components/layout";
 import SubmitButton from "../components/submit-button";
-
+import Comment from "../components/comment";
 import client from "@/libs/server/prisma-client";
-import type { MeetUp, MeetUpLike } from "@prisma/client";
+import type {
+  MeetUp,
+  MeetUpLike,
+  MeetUpJoin,
+  MeetUpCommentLike,
+} from "@prisma/client";
 
 import useUser from "@/libs/client/useUser";
 import useMutation from "@/libs/client/useMutation";
@@ -17,20 +23,96 @@ import { APIROUTE } from "@/constants/apiroutes";
 import { useEffect, useState } from "react";
 import cls from "@/libs/util/cls";
 
+type MeetUpComment = {
+  id: number;
+  createdAt: string;
+  text: string;
+  user: {
+    username: string;
+    id: number;
+    avatar?: string;
+  };
+  parent?: MeetUpComment;
+  parentId?: number;
+  comments?: MeetUpComment[];
+  likes?: MeetUpCommentLike[];
+};
+
+type MeetUpDetail = MeetUp & {
+  userId: number;
+  user: { username: string };
+  joins: {
+    userId: number;
+    user: {
+      username: string;
+    };
+  }[];
+  likes: {
+    userId: number;
+    user: {
+      username: string;
+    };
+  }[];
+  comments: MeetUpComment[];
+};
+
+interface UserData {
+  meetUpLikes: {
+    meetUpId: number;
+  }[];
+
+  id: number;
+  email: string | null;
+  phone: string | null;
+  password: string;
+  username: string;
+  createdAt: Date;
+  updatedAt: Date;
+  avatar: string | null;
+}
 interface MeetDetailProps {
-  meetUp: MeetUp & { user: { username: string } };
+  pageId: string;
+  meetUpProp: MeetUpDetail;
+}
+
+interface IResponse {
+  status: "ok" | "fail" | "error";
+  data: { meetUp: MeetUpDetail; isLiked: boolean };
 }
 
 interface ReplyForm {
   reply: string;
 }
 
-const MeetDetail: NextPage<MeetDetailProps> = ({ meetUp }) => {
-  const router = useRouter();
-  const user = useUser();
-  const [isLiked, setIsLiked] = useState(false);
+const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
+  const { data: responseData, mutate } = useSWR<IResponse>(
+    APIROUTE.MEETS_DETAIL(pageId),
+    {
+      fallbackData: {
+        status: "ok",
+        data: { meetUp: meetUpProp, isLiked: false },
+      },
+    }
+  );
+  const {
+    data: { meetUp },
+  } = responseData as IResponse;
 
-  const { register, handleSubmit } = useForm<ReplyForm>();
+  const router = useRouter();
+  const user = useUser<UserData>();
+  const [isLiked, setIsLiked] = useState(false);
+  const [isJoined, setIsJoined] = useState(false);
+  const [isLikersModalOpened, setIsLikersModalOpened] = useState(false);
+  const [isJoinersModalOpened, setIsJoinersModalOpened] = useState(false);
+
+  const onClickJoiners = () => {
+    setIsJoinersModalOpened((prev) => !prev);
+  };
+  const onClickLikers = () => {
+    setIsLikersModalOpened((prev) => !prev);
+  };
+
+  const { register, handleSubmit, setValue } = useForm<ReplyForm>();
   const { trigger: likeTrigger, state: likeState } = useMutation(
     APIROUTE.MEETS_LIKE(String(router.query.id)),
     "POST"
@@ -45,66 +127,77 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUp }) => {
     "POST"
   );
 
-  const onValid = ({ reply }: ReplyForm) => {
-    commentTrigger({ reply });
+  const onValid = async ({ reply }: ReplyForm) => {
+    await commentTrigger({ reply });
+    mutate();
   };
   const onLikeClick = async () => {
     if (user.status !== "ok") {
       return;
     }
     await likeTrigger();
-    user.mutate((prev) => {
-      if (
-        prev.userData.meetUpLikes.some(
-          (item: MeetUpLike) => item.meetUpId === +String(router?.query?.id)
-        )
-      ) {
-        return {
-          ...prev,
-          userData: {
-            ...prev.userData,
-            meetUpLikes: prev.userData.meetUpLikes.filter(
-              (item) => item.meetUpId !== +String(router?.query?.id)
-            ),
-          },
-        };
-      } else {
-        return {
-          ...prev,
-          userData: {
-            ...prev.userData,
-            meetUpLikes: [
-              ...prev.userData.meetUpLikes,
-              {
-                meetUpId: +String(router?.query?.id),
-              },
-            ],
-          },
-        };
-      }
-    }, true);
+    user.mutate(
+      (prev: { userData: { meetUpLikes: { meetUpId: number }[] } }) => {
+        if (
+          prev.userData.meetUpLikes.some(
+            (item) => item.meetUpId === +String(router?.query?.id)
+          )
+        ) {
+          return {
+            ...prev,
+            userData: {
+              ...prev.userData,
+              meetUpLikes: prev.userData.meetUpLikes.filter(
+                (item) => item.meetUpId !== +String(router?.query?.id)
+              ),
+            },
+          };
+        } else {
+          return {
+            ...prev,
+            userData: {
+              ...prev.userData,
+              meetUpLikes: [
+                ...prev.userData.meetUpLikes,
+                {
+                  meetUpId: +String(router?.query?.id),
+                },
+              ],
+            },
+          };
+        }
+      },
+      true
+    );
     setIsLiked(
       user.userData.meetUpLikes.some(
-        (item: MeetUpLike) => item.meetUpId === +router?.query?.id?.toString()
+        (item) => item.meetUpId === +String(router.query.id)
       )
     );
+    mutate();
   };
-  const onJoinClick = () => {
-    joinTrigger();
+  const onJoinClick = async () => {
+    await joinTrigger();
+    mutate();
   };
 
   useEffect(() => {
     if (user.status === "ok") {
       setIsLiked(
         user?.userData?.meetUpLikes.some(
-          (item: MeetUpLike) => item.meetUpId === +router?.query?.id?.toString()
+          (item) => item.meetUpId === +String(router!.query!.id)
         )
       );
+      if (meetUp) {
+        setIsJoined(
+          meetUp.joins?.some((item) => item.userId === user.userData.id)
+        );
+      }
     }
-  }, [user, isLiked, setIsLiked, router, onLikeClick]);
+  }, [user, isLiked, setIsLiked, onLikeClick, mutate]);
 
   return (
-    <Layout hasBack seoTitle="meetUp" title={meetUp?.name}>
+    <Layout hasBack seoTitle="meetUp" title={meetUp.name}>
       <div className="wrapper px-4 py-10">
         <div className="topbox mb-8">
           <div className="picture h-96 bg-orange-300" />
@@ -112,7 +205,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUp }) => {
             <div className="rounded-full w-[52px] h-[52px] bg-orange-500" />
             <div className="flex-col space-y-1">
               <p className="text-sm font-medium text-gray-700">
-                {meetUp?.user?.username}
+                {meetUp.user?.username}
               </p>
               <p className="text-xs font-medium text-gray-500">
                 view profile &rarr;
@@ -122,7 +215,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUp }) => {
           <div className="descriptionBox mt-4 space-y-2">
             <h1 className="text-3xl font-bold text-gray-800">{meetUp?.name}</h1>
             <span className="text-xl block text-gray-900">
-              장소: {meetUp?.location}
+              장소: {meetUp.location}
             </span>
             <span className="text-xl block text-gray-900">
               {meetUp?.schedule
@@ -130,14 +223,18 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUp }) => {
                 .split("T")
                 .map((word, index) => (!index ? `${word} ` : word.slice(0, 5)))}
             </span>
-            <span className="text-md">조회수:{meetUp?.viewCount}</span>
-            <p className="my-6 text-gray-700">{meetUp?.description}</p>
+            <span className="text-md">조회수:{meetUp.viewCount}</span>
+            <p className="my-6 text-gray-700">{meetUp.description}</p>
+
             <div className="w-full flex items-center px-1 space-x-1">
               <button
-                className="flex-1 bg-orange-700 text-white py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-800 font-medium hover:bg-orange-800"
+                className={cls(
+                  "flex-1  text-white py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-800 font-medium hover:bg-orange-800",
+                  isJoined ? "bg-black" : "bg-orange-700"
+                )}
                 onClick={onJoinClick}
               >
-                Join this meet
+                {isJoined ? "Joined this meet" : "Join this meet"}
               </button>
               <button
                 className="py-2 px-2 aspect-square rounded-md justify-center items-center text-gray-700 bg-color-gray-200 hover:bg-gray-300 group"
@@ -166,24 +263,60 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUp }) => {
               </button>
             </div>
           </div>
-        </div>
-        <div className="flex items-start space-x-3 px-2 border-b border-b-gray-200 mb-1">
-          <div className="w-8 h-8 mt-1  bg-slate-300 rounded-full" />
-          <div>
-            <span className="text-sm block font-medium text-gray-800">린</span>
-            <span className="text-xs text-gray-600 mt-1">2시간 전</span>
-            <p className="text-gray-800 mt-2">족발은 이제 그만..!</p>
+          <div className="p-1 h-10 flex justify-start items-center">
+            <span className="hover:text-blue-500 hover:font-bold hover:text-lg cursor-pointer">
+              {meetUp.joins?.length}
+              명이 참여 하고
+            </span>
+            ,
+            <span className="hover:text-red-500 hover:font-bold hover:text-lg cursor-pointer">
+              {meetUp.likes?.length}명이 좋아합니다.
+            </span>
           </div>
         </div>
-        <form onSubmit={handleSubmit(onValid)}>
-          <TextArea
-            register={register("reply", { required: true })}
-            label="Reply"
-            required={true}
-            name="reply-textarea"
-          />
-          <SubmitButton text="Add Reply" />
-        </form>
+        <p>{`comments: ${meetUp.comments?.length}`}</p>
+        <div className="mt-1">
+          {user.status === "ok" &&
+            meetUp.comments?.map((comment, index) => {
+              const {
+                id,
+                text,
+                createdAt,
+                user: { username, id: userId, avatar },
+                parent,
+                comments,
+                likes,
+              } = comment;
+              return (
+                !parent && (
+                  <Comment
+                    comments={comments as []}
+                    key={index}
+                    meetUpId={meetUp.id.toString()}
+                    likes={likes?.length}
+                    owner={userId === user.userData.id}
+                    writtenAt={createdAt}
+                    userId={String(user.userData.id)}
+                    avatar={avatar}
+                    text={text}
+                    userName={username}
+                    id={id.toString()}
+                  />
+                )
+              );
+            })}
+          <form onSubmit={handleSubmit(onValid)}>
+            <TextArea
+              register={register("reply", { required: true })}
+              label="comments"
+              required={true}
+              name="reply-textarea"
+              setValue={setValue}
+              value={""}
+            />
+            <SubmitButton text="Add Comment" />
+          </form>
+        </div>
       </div>
     </Layout>
   );
@@ -226,12 +359,47 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           },
         },
       },
+      joins: {
+        select: {
+          userId: true,
+          user: {
+            select: {
+              username: true,
+            },
+          },
+        },
+      },
+      comments: {
+        select: {
+          id: true,
+          createdAt: true,
+          text: true,
+          user: {
+            select: {
+              id: true,
+              avatar: true,
+              username: true,
+            },
+          },
+          likes: {
+            select: {
+              id: true,
+              userId: true,
+            },
+          },
+          parent: true,
+          parentId: true,
+          comments: {
+            include: { user: true, comments: true, likes: true },
+          },
+        },
+      },
     },
   });
-
   return {
     props: {
-      meetUp: JSON.parse(JSON.stringify(meetUp)),
+      meetUpProp: JSON.parse(JSON.stringify(meetUp)),
+      pageId,
     },
   };
 };

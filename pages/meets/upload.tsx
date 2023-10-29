@@ -18,7 +18,7 @@ interface uploadMeetForm {
 }
 
 const Upload: NextPage = () => {
-  const { register, handleSubmit } = useForm<uploadMeetForm>();
+  const { register, handleSubmit, setValue } = useForm<uploadMeetForm>();
   const { trigger, state } = useMutation(APIROUTE.MEETS_INDEX, "POST");
   const router = useRouter();
   const onValid = (data: uploadMeetForm) => {
@@ -133,10 +133,12 @@ const Upload: NextPage = () => {
         />
       </div>
       <TextArea
+        setValue={setValue}
         register={register("description", { required: true })}
         name="description-textarea"
         label="Description"
         required={true}
+        value=""
       />
       <SubmitButton text="Upload MeetUp" />
     </form>
