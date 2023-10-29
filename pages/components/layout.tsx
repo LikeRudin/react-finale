@@ -33,16 +33,20 @@ const Layout = ({
           <meta property="og:title" content={metaText} key="title" />
         )}
       </Head>
-      <div className="fixed bg-white w-full h-12 max-w-xl justify-center text-md px-10 font-bold fiexed text-gray-800 border-b top-0 flex items-center">
+      <div
+        className={
+          "fixed bg-white w-full h-12 max-w-xl text-md px-10 font-bold fiexed text-gray-800 border-b top-0 flex items-center justify-center"
+        }
+      >
         {hasBack && (
-          <button onClick={onBackClick}>
+          <button className="fixed left-5" onClick={onBackClick}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="w-6 h-6"
+              className="w-6 h-6 hover:text-red-400"
             >
               <path
                 strokeLinecap="round"
