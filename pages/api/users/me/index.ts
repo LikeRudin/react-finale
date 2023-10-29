@@ -8,13 +8,20 @@ const handler: structuredNextApiHandler = async (req, res) => {
     case "GET": {
       const profile = await client.user.findUnique({
         where: { id: req.session.user?.id },
+        include: {
+          meetUpLikes: {
+            select: {
+              meetUpId: true,
+            },
+          },
+        },
       });
       if (!profile) {
         return res
           .status(500)
           .json({ ok: false, error: "유저 정보를 찾을 수 없습니다." });
       }
-      return res.status(202);
+      return res.status(202).json({ ok: true, data: profile });
     }
     case "POST": {
       return res
