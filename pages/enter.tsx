@@ -43,8 +43,11 @@ export default function Enter() {
     "POST"
   );
 
-  const { register: signInRegister, handleSubmit: handleSigninSubmit } =
-    useForm<SignInForm>();
+  const {
+    register: signInRegister,
+    handleSubmit: handleSigninSubmit,
+    formState: { errors: signInErrors },
+  } = useForm<SignInForm>();
   const { trigger: createAccount, state: accountData } = useMutation(
     APIROUTE.ENTER_CREATION,
     "POST"
@@ -153,36 +156,82 @@ export default function Enter() {
               <form onSubmit={handleSigninSubmit(onSigninValid)}>
                 <Input
                   label="Email"
-                  register={signInRegister("email", { required: true })}
+                  register={signInRegister("email", {
+                    required: "이메일을 입력해주세요",
+                    validate: (item) =>
+                      item.includes("@") ||
+                      "올바른 형식의 이메일을 입력해주세요",
+                  })}
                   name="email"
                   required={true}
                   placeholder="Enter email address"
                   type="email"
                 />
+                {signInErrors?.email && (
+                  <p className="text-sm text-red-500">
+                    {signInErrors.email.message}
+                  </p>
+                )}
                 <Input
                   label="Phone"
-                  register={signInRegister("phone", { required: true })}
+                  register={signInRegister("phone", {
+                    required: "전화번호를 입력해주세요",
+                    validate: (item) =>
+                      ![...item]
+                        .map((x) => Number(x))
+                        .filter((x) => Number.isNaN(x)).length ||
+                      "'-'가 포함되지않은 숫자만 입력해주세요 ",
+                  })}
                   name="phone"
                   required={true}
                   placeholder="Enter phone number including only numbers"
                   type="text"
                 />
+                {signInErrors?.phone && (
+                  <p className="text-sm text-red-500">
+                    {signInErrors.phone.message}
+                  </p>
+                )}
+
                 <Input
                   label="UserName"
-                  register={signInRegister("username", { required: true })}
+                  register={signInRegister("username", {
+                    required: "사용자 이름을 입력해주세요",
+                    maxLength: {
+                      value: 10,
+                      message: "사용자 이름은 10자를 초과할 수 없습니다.",
+                    },
+                  })}
                   name="username"
                   required={true}
                   placeholder="Enter username, which is not necessarilry unique"
                   type="text"
                 />
+                {signInErrors?.username && (
+                  <p className="text-sm text-red-500">
+                    {signInErrors.username.message}
+                  </p>
+                )}
+
                 <Input
                   label="Password"
-                  register={signInRegister("password", { required: true })}
+                  register={signInRegister("password", {
+                    required: "비밀번호를 입력해주세요",
+                    minLength: {
+                      value: 10,
+                      message: "적어도 10자 이상을 입력해야합니다",
+                    },
+                  })}
                   name="password"
                   required={true}
                   placeholder="Enter your password"
                   type="password"
                 />
+                {signInErrors?.password && (
+                  <p className="text-sm text-red-500">
+                    {signInErrors.password.message}
+                  </p>
+                )}
                 <Input
                   label="Password Confirm"
                   register={signInRegister("passwordconfirm", {
@@ -193,6 +242,11 @@ export default function Enter() {
                   placeholder="Re-enter your password"
                   type="password"
                 />
+                {signInErrors?.passwordconfirm && (
+                  <p className="text-sm text-red-500">
+                    {signInErrors.passwordconfirm.message}
+                  </p>
+                )}
                 <button className="w-full mt-5 bg-orange-700 hover:bg-orange-800 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-bold focus:ring-2 focus:ring-offset-2 focus:ring-orange-700 focus:outline-none">
                   Create new account
                 </button>
@@ -216,9 +270,10 @@ export default function Enter() {
                   {method}
                 </button>
               </form>
-
               {signInData.status === "fail" && (
-                <p>{JSON.stringify(signInData.error)}</p>
+                <p className="text-red-500 mt-2">
+                  {JSON.stringify(signInData.error)}
+                </p>
               )}
             </>
           )}
