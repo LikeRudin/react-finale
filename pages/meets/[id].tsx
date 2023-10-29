@@ -105,10 +105,10 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
   const [isLikersModalOpened, setIsLikersModalOpened] = useState(false);
   const [isJoinersModalOpened, setIsJoinersModalOpened] = useState(false);
 
-  const onClickJoiners = () => {
+  const onJoinersClick = () => {
     setIsJoinersModalOpened((prev) => !prev);
   };
-  const onClickLikers = () => {
+  const onLikersClick = () => {
     setIsLikersModalOpened((prev) => !prev);
   };
 
@@ -264,12 +264,18 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
             </div>
           </div>
           <div className="p-1 h-10 flex justify-start items-center">
-            <span className="hover:text-blue-500 hover:font-bold hover:text-lg cursor-pointer">
+            <span
+              onClick={onJoinersClick}
+              className="hover:text-blue-500 hover:font-bold hover:text-lg cursor-pointer"
+            >
               {meetUp.joins?.length}
               명이 참여 하고
             </span>
             ,
-            <span className="hover:text-red-500 hover:font-bold hover:text-lg cursor-pointer">
+            <span
+              onClick={onLikersClick}
+              className="hover:text-red-500 hover:font-bold hover:text-lg cursor-pointer"
+            >
               {meetUp.likes?.length}명이 좋아합니다.
             </span>
           </div>
@@ -316,6 +322,84 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
             />
             <SubmitButton text="Add Comment" />
           </form>
+        </div>
+      </div>
+      <div
+        className={cls(
+          isJoinersModalOpened
+            ? "fixed top-0 left-0 w-screen h-screen bg-black/50 z-20 flex justify-center items-center"
+            : "hidden"
+        )}
+        onClick={onJoinersClick}
+      >
+        <div className="flex flex-col w-1/2 space-y-5 py-10 px-2 h-2/3 bg-white overflow-y-auto">
+          {meetUp.joins.length ? (
+            meetUp.joins.map((join, index) => {
+              const {
+                user: { username },
+              } = join;
+
+              return (
+                <div
+                  key={index}
+                  className="w-full flex justify-between px-5 border-b pb-5 cursor-pointer"
+                >
+                  <div className="flex space-x-4 items-center">
+                    <div className="pt-2 flex-col">
+                      <div className="text-md font-medium text-gray-900 break-normal">
+                        {username}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="flex space-x-4 items-center justify-center">
+              <div className="text-md font-medium text-gray-900 break-normal">
+                아직 참여자가 없어요
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      <div
+        className={cls(
+          isLikersModalOpened
+            ? "fixed top-0 left-0 w-screen h-screen bg-black/50 z-20 flex justify-center items-center"
+            : "hidden"
+        )}
+        onClick={onLikersClick}
+      >
+        <div className="flex flex-col w-1/2 space-y-5 py-10 px-2 h-2/3 bg-white overflow-y-auto">
+          {meetUp.likes.length ? (
+            meetUp.likes.map((like, index) => {
+              const {
+                user: { username },
+              } = like;
+
+              return (
+                <div
+                  key={index}
+                  className="w-full flex justify-between px-5 border-b pb-5 cursor-pointer"
+                >
+                  <div className="flex space-x-4 items-center">
+                    <div className="pt-2 flex-col">
+                      <div className="text-md font-medium text-gray-900 break-normal">
+                        {username}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="flex space-x-4 items-center justify-center">
+              <div className="text-md font-medium text-gray-900 break-normal">
+                아직 반응한사람이 없어요
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </Layout>
