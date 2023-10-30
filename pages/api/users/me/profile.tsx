@@ -7,8 +7,8 @@ const handler: structuredNextApiHandler = async (req, res) => {
   const profile = await client.user.findUnique({
     where: { id: req.session.user?.id },
     include: {
-      activityLogs: true,
-      notifications: true,
+      activityLogs: { take: 10, orderBy: { createdAt: "desc" } },
+      notifications: { take: 10, orderBy: { createdAt: "desc" } },
     },
   });
   if (!profile) {

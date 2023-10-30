@@ -36,27 +36,30 @@ const Profile = () => {
   return (
     <Layout title="프로필" seoTitle="내계정" hasBottomBar>
       {user.status === "ok" ? (
-        <div className="px-2 py-16">
+        <div className="px-2 py-16 text-gray-400 h-full">
           <div className="profile flex items-center cursor-pointer py-4 space-x-4 border-t border-b">
             <div className="rounded-full w-[52px] h-[52px] bg-orange-500" />
             <div className="flex-col space-y-1">
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-gray-300">
                 {user.userData.username}
               </p>
-              <button className="text-xs font-medium text-gray-500">
+              <Link
+                href="/profile/edit"
+                className="text-xs font-medium text-gray-500"
+              >
                 Edit profile &rarr;
-              </button>
+              </Link>
             </div>
           </div>
           <div className="intoduction-box mt-2 flex flex-col justify-start ">
-            <span className="text-sm font-md text-gray-700">Introduction</span>
-            <div className="h-24 w-full text-sm text-gray-800 rounded-md break-normal bg-color-white shadow-sm border-2 border-gray-400">
+            <span className="text-sm font-md text-gray-300">Introduction</span>
+            <div className="h-24 w-full text-sm text-gray-400 rounded-md break-normal bg-color-white shadow-sm border-2 border-gray-400">
               {user.status === "ok" && user.userData.introduction
                 ? user.userData.introduction
-                : "작성한 소개 내역이 없습니다."}
+                : "소개문구를 작성해보세요."}
             </div>
           </div>
-          <h3 className="text-sm font-md text-gray-700">활동내역</h3>
+          <h3 className="text-sm font-md text-gray-300">활동내역</h3>
           <div className="activity-box mt-4 grid grid-cols-3">
             <div className="flex flex-col items-center justify-center space-y-2">
               <button
@@ -135,7 +138,7 @@ const Profile = () => {
                 const { createdAt, type, placeId } = log;
                 const { message, link } = activityLogParser({
                   activity: type,
-                  id: placeId,
+                  id: placeId as number,
                 });
                 return (
                   <Link
@@ -145,10 +148,10 @@ const Profile = () => {
                   >
                     <div className="flex space-x-4 items-center">
                       <div className="pt-2 flex-col">
-                        <div className="text-md font-medium text-gray-900 break-normal">
+                        <div className="text-md font-medium text-gray-800 break-normal">
                           {message}
                         </div>
-                        <div className="flex items-center space-x-1 text-sm text-gray-500">
+                        <div className="flex items-center space-x-1 text-sm text-gray-800">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
@@ -166,7 +169,7 @@ const Profile = () => {
                           <span>{createdAt.toString()}</span>
                         </div>
                       </div>
-                      <div>
+                      <div className="text-gray-800">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
@@ -211,10 +214,10 @@ const Profile = () => {
                   >
                     <div className="flex space-x-4 items-center">
                       <div className="pt-2 flex-col">
-                        <div className="text-md font-medium text-gray-900 break-normal">
+                        <div className="text-md font-medium text-gray-800 break-normal">
                           {message}
                         </div>
-                        <div className="flex items-center space-x-1 text-sm text-gray-500">
+                        <div className="flex items-center space-x-1 text-sm text-gray-800">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
@@ -232,7 +235,7 @@ const Profile = () => {
                           <span>{createdAt.toString()}</span>
                         </div>
                       </div>
-                      <div>
+                      <div className="text-gray-800">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
