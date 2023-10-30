@@ -198,46 +198,45 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
 
   return (
     <Layout hasBack seoTitle="meetUp" title={meetUp.name}>
-      <div className="wrapper px-4 py-10">
-        <div className="topbox mb-8">
+      <div className="wrapper py-10 pb-20 text-gray-400 h-full bg-[rgb(20,20,20)]">
+        <div className="topbox px-4 bg-[rgb(20,20,20)] py-2">
           <div className="picture h-96 bg-orange-300" />
-          <div className="profile flex items-center cursor-pointer py-4 space-x-4 border-t border-b">
-            <div className="rounded-full w-[52px] h-[52px] bg-orange-500" />
+          <div className="profile flex items-center cursor-pointer py-4 space-x-4 border-t border-b ">
+            <div className="rounded-full w-[48px] h-[48px] bg-orange-500" />
             <div className="flex-col space-y-1">
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-gray-300">
                 {meetUp.user?.username}
               </p>
-              <p className="text-xs font-medium text-gray-500">
+              <p className="text-xs font-medium text-gray-400">
                 view profile &rarr;
               </p>
             </div>
           </div>
-          <div className="descriptionBox mt-4 space-y-2">
-            <h1 className="text-3xl font-bold text-gray-800">{meetUp?.name}</h1>
-            <span className="text-xl block text-gray-900">
+          <div className="descriptionBox mt-4 space-y-2 bg-[rgb(20,20,20)]">
+            <h1 className="text-3xl font-bold text-gray-300">{meetUp?.name}</h1>
+            <span className="text-xl block text-gray-400">
               장소: {meetUp.location}
             </span>
-            <span className="text-xl block text-gray-900">
+            <span className="text-xl block text-gray-400">
               {meetUp?.schedule
                 .toString()
                 .split("T")
                 .map((word, index) => (!index ? `${word} ` : word.slice(0, 5)))}
             </span>
             <span className="text-md">조회수:{meetUp.viewCount}</span>
-            <p className="my-6 text-gray-700">{meetUp.description}</p>
-
-            <div className="w-full flex items-center px-1 space-x-1">
+            <div className="my-6 text-gray-300">{meetUp.description}</div>
+            <div className="w-full flex items-center px-1 space-x-1 bg-[rgb(20,20,20)]">
               <button
                 className={cls(
                   "flex-1  text-white py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-800 font-medium hover:bg-orange-800",
-                  isJoined ? "bg-black" : "bg-orange-700"
+                  isJoined ? "bg-[#2f8873]" : "bg-orange-700"
                 )}
                 onClick={onJoinClick}
               >
                 {isJoined ? "Joined this meet" : "Join this meet"}
               </button>
               <button
-                className="py-2 px-2 aspect-square rounded-md justify-center items-center text-gray-700 bg-color-gray-200 hover:bg-gray-300 group"
+                className="py-2 px-2 aspect-square rounded-md justify-center items-center text-gray-300 bg-color-gray-200 hover:bg-gray-300 group"
                 onClick={onLikeClick}
               >
                 <svg
@@ -262,26 +261,26 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
                 </svg>
               </button>
             </div>
-          </div>
-          <div className="p-1 h-10 flex justify-start items-center">
-            <span
-              onClick={onJoinersClick}
-              className="hover:text-blue-500 hover:font-bold hover:text-lg cursor-pointer"
-            >
-              {meetUp.joins?.length}
-              명이 참여 하고
-            </span>
-            ,
-            <span
-              onClick={onLikersClick}
-              className="hover:text-red-500 hover:font-bold hover:text-lg cursor-pointer"
-            >
-              {meetUp.likes?.length}명이 좋아합니다.
-            </span>
+            <div className="bg-[rgb(20,20,20)] p-2 h-10 flex justify-start items-center">
+              <span
+                onClick={onJoinersClick}
+                className="hover:text-blue-500 hover:font-bold hover:text-lg cursor-pointer"
+              >
+                {meetUp.joins?.length}
+                명이 참여 하고
+              </span>
+              ,
+              <span
+                onClick={onLikersClick}
+                className="hover:text-red-500 hover:font-bold hover:text-lg cursor-pointer"
+              >
+                {meetUp.likes?.length}명이 좋아합니다.
+              </span>
+            </div>
           </div>
         </div>
-        <p>{`comments: ${meetUp.comments?.length}`}</p>
-        <div className="mt-1">
+        <div className="bg-[rgb(20,20,20)] w-full px-4 ">
+          <p>{`comments: ${meetUp.comments?.length}`}</p>
           {user.status === "ok" &&
             meetUp.comments?.map((comment, index) => {
               const {
@@ -314,7 +313,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
           <form onSubmit={handleSubmit(onValid)}>
             <TextArea
               register={register("reply", { required: true })}
-              label="comments"
+              label="Comment"
               required={true}
               name="reply-textarea"
               setValue={setValue}
@@ -346,7 +345,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
                 >
                   <div className="flex space-x-4 items-center">
                     <div className="pt-2 flex-col">
-                      <div className="text-md font-medium text-gray-900 break-normal">
+                      <div className="text-md font-medium text-gray-400 break-normal">
                         {username}
                       </div>
                     </div>
@@ -356,7 +355,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
             })
           ) : (
             <div className="flex space-x-4 items-center justify-center">
-              <div className="text-md font-medium text-gray-900 break-normal">
+              <div className="text-md font-medium text-gray-400 break-normal">
                 아직 참여자가 없어요
               </div>
             </div>
@@ -385,7 +384,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
                 >
                   <div className="flex space-x-4 items-center">
                     <div className="pt-2 flex-col">
-                      <div className="text-md font-medium text-gray-900 break-normal">
+                      <div className="text-md font-medium text-gray-400 break-normal">
                         {username}
                       </div>
                     </div>

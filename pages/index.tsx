@@ -17,7 +17,7 @@ interface HomeProps {
 const Home: NextPage<HomeProps> = ({ meetUps }) => {
   return (
     <Layout hasBottomBar title="모여서함께" seoTitle="모여서함께">
-      <div className="flex flex-col space-y-5 py-10 px-2">
+      <div className="w-full max-w-xl h-full flex flex-col space-y-5 py-10  ">
         {meetUps?.map((item, index) => {
           const {
             user: { username },
@@ -34,13 +34,13 @@ const Home: NextPage<HomeProps> = ({ meetUps }) => {
             <Link
               href={`/meets/${id}`}
               key={index}
-              className="flex justify-between px-4 border-b pb-5 cursor-pointer"
+              className=" flex justify-between px-4 border-b pb-5 cursor-pointer"
             >
               <div className="flex space-x-4">
                 <div className="w-20 aspect-square bg-orange-400 rounded-md" />
                 <div className="pt-2 flex-col">
-                  <h3 className="text-md font-medium text-gray-900">{name}</h3>
-                  <div className="flex items-center space-x-1 text-sm text-gray-500">
+                  <h3 className="text-md font-medium text-gray-300">{name}</h3>
+                  <div className="flex items-center space-x-1 text-sm text-gray-400">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -66,13 +66,13 @@ const Home: NextPage<HomeProps> = ({ meetUps }) => {
                     <p>/</p>
                     <span>{location}</span>
                   </div>
-                  <span className="font-medium mt-1 text-sm text-gray-600">
+                  <span className="font-medium mt-1 text-sm text-gray-400">
                     {`host: ${String(username)}`}
                   </span>
                 </div>
               </div>
               <div className="flex space-x-2 items-end justify-end">
-                <div className="flex space-x-0.5 items-center text-sm text-gray-600">
+                <div className="flex space-x-0.5 items-center text-sm text-gray-300">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -89,7 +89,7 @@ const Home: NextPage<HomeProps> = ({ meetUps }) => {
                   </svg>
                   <span>{joins.length}</span>
                 </div>
-                <div className="flex space-x-0.5 items-center text-sm text-gray-600">
+                <div className="flex space-x-0.5 items-center text-sm text-gray-300">
                   <svg
                     className="w-4 h-4"
                     fill="none"
@@ -106,7 +106,7 @@ const Home: NextPage<HomeProps> = ({ meetUps }) => {
                   </svg>
                   <span>{likes.length}</span>
                 </div>
-                <div className="flex space-x-0.5 items-center text-sm text-gray-600">
+                <div className="flex space-x-0.5 items-center text-sm text-gray-300">
                   <svg
                     className="w-4 h-4"
                     fill="none"
@@ -155,7 +155,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
       schedule: "desc",
     },
   });
-  console.log(meetUps);
   return {
     props: {
       meetUps: JSON.parse(JSON.stringify(meetUps)),

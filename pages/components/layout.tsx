@@ -26,20 +26,16 @@ const Layout = ({
   const router = useRouter();
   const onBackClick = () => router.back();
   return (
-    <div>
+    <div className="text-[#2f8873] font-semibold drop-sh">
       <Head>
         <title>{`${seoTitle} | Quo-Meet`}</title>
         {metaText && (
           <meta property="og:title" content={metaText} key="title" />
         )}
       </Head>
-      <div
-        className={
-          "fixed bg-white w-full h-12 max-w-xl text-md px-10 font-bold fiexed text-gray-800 border-b top-0 flex items-center justify-center"
-        }
-      >
+      <div className="fixed bg-[rgba(7,6,6,0.58)] w-full h-12 max-w-xl text-md px-10 font-bold fiexed border-b top-0 flex items-center justify-center scrollbar-hide text-[[#2d987f]]">
         {hasBack && (
-          <button className="fixed left-5" onClick={onBackClick}>
+          <button className="absolute left-5" onClick={onBackClick}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -56,20 +52,25 @@ const Layout = ({
             </svg>
           </button>
         )}
-        {title && <span>{title}</span>}
+        {title && <span className="text-[#2f8873]">{title}</span>}
       </div>
-      <div className={cls("pt-12", hasBottomBar ? "pb-24" : "")}>
+      <div
+        className={cls(
+          "w-full h-screen max-w-max-xl pt-12 bg-[rgb(25,25,25)]",
+          hasBottomBar ? "pb-20" : ""
+        )}
+      >
         {children}
       </div>
       {hasBottomBar && (
-        <nav className="w-full max-w-xl fixed bottom-0 border-t bg-white text-gray-800 text-xs px-10 pb-5 pt-3 flex justify-between ">
+        <nav className="w-full max-w-xl fixed bottom-0 border-t bg-[rgb(26,22,22)]  text-xs px-10 pb-5 pt-3 flex justify-between ">
           <Link
             href={ROUTE_PATH.INDEX}
             className={cls(
-              "flex flex-col items-center space-y-2",
+              "flex flex-col items-center space-y-2 ",
               router.pathname === ROUTE_PATH.INDEX
-                ? "text-orange-600"
-                : "hover-text-gray-500 transition-colors"
+                ? "text-white"
+                : "hover-text-[#2f8873] transition-colors"
             )}
           >
             <svg
@@ -93,8 +94,8 @@ const Layout = ({
             className={cls(
               "flex flex-col items-center space-y-2",
               router.pathname === ROUTE_PATH.COMMUNITY
-                ? "text-orange-600"
-                : "hover-text-gray-500 transition-colors"
+                ? "text-white"
+                : "hover-text-[#2f8873] transition-colors"
             )}
           >
             <svg
@@ -118,8 +119,8 @@ const Layout = ({
             className={cls(
               "flex flex-col items-center space-y-2",
               router.pathname === ROUTE_PATH.CHAT
-                ? "text-orange-600"
-                : "hover-text-gray-500 transition-colors"
+                ? "text-white"
+                : "hover-[#00624b] transition-colors"
             )}
           >
             <svg
@@ -143,8 +144,8 @@ const Layout = ({
             className={cls(
               "flex flex-col items-center space-y-2",
               router.pathname === ROUTE_PATH.LIVE
-                ? "text-orange-600"
-                : "hover-text-gray-500 transition-colors"
+                ? "text-white"
+                : "hover-[#00624b] transition-colors"
             )}
           >
             <svg
@@ -167,8 +168,8 @@ const Layout = ({
             className={cls(
               "flex flex-col items-center space-y-2",
               router.pathname === ROUTE_PATH.PROFILE
-                ? "text-orange-600"
-                : "hover-text-gray-500 transition-colors"
+                ? "text-white"
+                : "hover-text-[#2f8873] transition-colors"
             )}
           >
             <svg

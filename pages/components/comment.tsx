@@ -110,9 +110,9 @@ const Comment = ({
   };
 
   return (
-    <div className="flex flex-col items-start space-x-3 px-2 border-b border-b-gray-200 mb-1">
-      <div className="flex flex-col">
-        <div className="flex">
+    <div className="w-full flex flex-col items-start space-x-3 border-b border-b-gray-200 mb-1">
+      <div className="flex flex-col w-full">
+        <div className="flex w-full">
           {avatar ? (
             <Image
               src={avatar}
@@ -124,7 +124,7 @@ const Comment = ({
           ) : (
             <div className="w-8 h-8 mt-1  bg-slate-300 rounded-full" />
           )}
-          <div className="text-md font-medium text-gray-800 flex space-x-2 p-1">
+          <div className="text-md font-medium text-gray-300 flex space-x-2 p-1">
             <div className="flex justify-center items-center">{userName}</div>
             <button onClick={onLikeClick}>
               <svg
@@ -199,10 +199,10 @@ const Comment = ({
             )}
           </div>
         </div>
-        <span className="text-xs text-gray-600 mt-1">{writtenAt}</span>
+        <span className="text-xs text-gray-400 mt-1">{writtenAt}</span>
       </div>
       <div className="w-full">
-        <div className="text-gray-800 mt-2 w-full">{text}</div>
+        <div className="text-gray-300 mt-2 w-full">{text}</div>
         {isEditting && (
           <form className="w-full" onSubmit={handleSubmit(onEditValid)}>
             <TextArea
