@@ -115,6 +115,11 @@ export const activityLogParser = ({
         message: "MeetUp 참여 의사를 밝혔어요",
         link: `/meets/${id}`,
       };
+    case "EditProfile":
+      return {
+        message: "프로파일을 업데이트 했어요",
+        link: `/profile/edit`,
+      };
     default: {
       return {
         message: "개발자가 누락했어요",

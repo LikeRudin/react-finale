@@ -26,11 +26,13 @@ model User {
   username String
   password String
   avatar String?
+  introduction String? @db.MediumText
   
   meetUps MeetUp[]
   meetUpLikes MeetUpLike[]
   meetUpJoins MeetUpJoin[]
   meetupComments MeetUpComment[]
+  meetUpCommentLikes MeetUpCommentLike[]
   reviews Review[]
   reviewLikes ReviewLike[]
   reviewComment ReviewComment[]
@@ -106,11 +108,26 @@ model MeetUpComment {
   parentId Int? 
   parent MeetUpComment? @relation("commentToComment", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   comments MeetUpComment[] @relation("commentToComment")
+  likes MeetUpCommentLike[]
 
   @@index([parentId])
   @@index([userId])
   @@index([meetUpId])
+}
 
+model MeetUpCommentLike{
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  
+
+  comment MeetUpComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId Int
+
+  @@index([userId])
+  @@index([commentId])
 
 }
 
@@ -208,7 +225,7 @@ model ReviewCommentLike{
   
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  
-  review ReviewComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  comment ReviewComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
   commentId Int
   
   @@index([userId])
@@ -351,7 +368,7 @@ model ActivityLog {
   userId Int 
 
   type Activity 
-  placeId Int
+  placeId Int?
 
   @@index([userId])
 }
@@ -364,6 +381,7 @@ enum Activity{
   MeetUpComment
   MeetUpCommentEdit
   MeetUpCommentLike
+  MeetUpCommentDelete
   Review
   ReviewEdit
   ReviewLike
@@ -377,6 +395,7 @@ enum Activity{
   CommentEdit
   CommentLike
   MeetUpJoin
+  EditProfile
 }
 
 

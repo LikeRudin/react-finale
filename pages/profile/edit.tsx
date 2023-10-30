@@ -48,13 +48,13 @@ const Edit = () => {
     <Layout title="프로필 편집" seoTitle="edit" hasBack hasBottomBar>
       {user.status === "ok" && (
         <form
-          className="px-4 space-y-2 text-gray-400"
+          className="px-4 space-y-2 text-gray-300"
           onSubmit={handleSubmit(onValid)}
         >
           <div className="profile flex items-center cursor-pointer py-4 space-x-4 border-t border-b">
             <div className="rounded-full w-[52px] h-[52px] bg-orange-500" />
             <div className="flex-col space-y-1">
-              <p className="text-sm font-medium text-gray-300">
+              <p className="text-sm font-medium">
                 {(user.userData as UserData).username}
               </p>
               <label>

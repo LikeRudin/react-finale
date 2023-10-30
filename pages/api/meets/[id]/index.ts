@@ -6,27 +6,95 @@ import client from "@/libs/server/prisma-client";
 const handler: structuredNextApiHandler = async (req, res) => {
   const {
     query: { id },
-    body: { name, location, schedule, description, imagepath },
   } = req;
+
+  if (!id) {
+    return res.status(404).json({ ok: false, error: "잘못된 접근입니다." });
+  }
+
   const user = req.session.user;
   if (!user) {
     return res.status(404).json({ ok: false, error: "로그인을 먼저 해주세요" });
   }
-  if (+id!.toString() !== user.id) {
-    return res.status(404).json({
-      ok: false,
-      error: "MeetUp 게시글 작성자 본인만 삭제할 수 있습니다.",
-    });
-  }
-  if (!(id && name && location && schedule && description)) {
-    return res.status(404).json({
-      ok: false,
-      error:
-        "name, location, schedule 그리고 description을 빠짐없이 작성해주세요",
-    });
-  }
+
   switch (req.method) {
-    case "POST":
+    case "GET":
+      const meetUp = await client.meetUp.findUnique({
+        where: {
+          id: +id.toString(),
+        },
+        include: {
+          user: {
+            select: {
+              username: true,
+            },
+          },
+          likes: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                },
+              },
+            },
+          },
+          joins: {
+            select: {
+              userId: true,
+              user: {
+                select: {
+                  username: true,
+                },
+              },
+            },
+          },
+          comments: {
+            select: {
+              id: true,
+              createdAt: true,
+              text: true,
+              user: {
+                select: {
+                  id: true,
+                  avatar: true,
+                  username: true,
+                },
+              },
+              parent: true,
+              parentId: true,
+              likes: true,
+              comments: {
+                include: { user: true, likes: true, comments: true },
+              },
+            },
+          },
+        },
+      });
+      if (!meetUp) {
+        return res
+          .status(404)
+          .json({ ok: false, error: "MeetUp이 존재하지 않습니다." });
+      }
+      const isLiked = meetUp.likes.some((item) => item.user.id === user.id);
+      return res.status(202).json({ ok: true, data: { meetUp, isLiked } });
+    case "PUT":
+      if (+id!.toString() !== user.id) {
+        return res.status(404).json({
+          ok: false,
+          error: "MeetUp 게시글 작성자 본인만 수정할 수 있습니다.",
+        });
+      }
+      const {
+        body: { name, location, schedule, description, imagepath },
+      } = req;
+      if (!(name && location && schedule && description)) {
+        return res.status(404).json({
+          ok: false,
+          error:
+            "name, location, schedule 그리고 description을 빠짐없이 작성해주세요",
+        });
+      }
       const transaction = await client.$transaction([
         client.meetUp.update({
           where: { id: +id.toString() },
@@ -57,6 +125,12 @@ const handler: structuredNextApiHandler = async (req, res) => {
       return res.status(202).json({ ok: true, data: id });
 
     case "DELETE":
+      if (+id.toString() !== user.id) {
+        return res.status(404).json({
+          ok: false,
+          error: "MeetUp 게시글 작성자 본인만 삭제할 수 있습니다.",
+        });
+      }
       const deleted = await client.meetUp.delete({
         where: { id: +id.toString() },
       });
@@ -72,5 +146,5 @@ const handler: structuredNextApiHandler = async (req, res) => {
 };
 
 export default withSessionApiRoute(
-  validateAndHandleRequest({ methods: ["PUT", "DELETE"], handler })
+  validateAndHandleRequest({ methods: ["PUT", "DELETE", "GET"], handler })
 );

@@ -17,7 +17,7 @@ interface HomeProps {
 const Home: NextPage<HomeProps> = ({ meetUps }) => {
   return (
     <Layout hasBottomBar title="모여서함께" seoTitle="모여서함께">
-      <div className="w-full max-w-xl h-full flex flex-col space-y-5 py-10  ">
+      <div className="w-full max-w-xl h-full flex flex-col justify-start    ">
         {meetUps?.map((item, index) => {
           const {
             user: { username },
@@ -34,7 +34,7 @@ const Home: NextPage<HomeProps> = ({ meetUps }) => {
             <Link
               href={`/meets/${id}`}
               key={index}
-              className=" flex justify-between px-4 border-b pb-5 cursor-pointer"
+              className="pt-3 flex justify-between px-4 border-b pb-5 cursor-pointer hover:bg-emerald-900"
             >
               <div className="flex space-x-4">
                 <div className="w-20 aspect-square bg-orange-400 rounded-md" />

@@ -70,7 +70,7 @@ const Layout = ({
               "flex flex-col items-center space-y-2 ",
               router.pathname === ROUTE_PATH.INDEX
                 ? "text-white"
-                : "hover-text-[#2f8873] transition-colors"
+                : "hover:text-orange-400 transition-colors"
             )}
           >
             <svg
@@ -95,7 +95,7 @@ const Layout = ({
               "flex flex-col items-center space-y-2",
               router.pathname === ROUTE_PATH.COMMUNITY
                 ? "text-white"
-                : "hover-text-[#2f8873] transition-colors"
+                : "hover:text-orange-400 transition-colors"
             )}
           >
             <svg
@@ -120,7 +120,7 @@ const Layout = ({
               "flex flex-col items-center space-y-2",
               router.pathname === ROUTE_PATH.CHAT
                 ? "text-white"
-                : "hover-[#00624b] transition-colors"
+                : "hover:text-orange-400 transition-colors"
             )}
           >
             <svg
@@ -145,7 +145,7 @@ const Layout = ({
               "flex flex-col items-center space-y-2",
               router.pathname === ROUTE_PATH.LIVE
                 ? "text-white"
-                : "hover-[#00624b] transition-colors"
+                : "hover:text-orange-400 transition-colors"
             )}
           >
             <svg
@@ -169,7 +169,7 @@ const Layout = ({
               "flex flex-col items-center space-y-2",
               router.pathname === ROUTE_PATH.PROFILE
                 ? "text-white"
-                : "hover-text-[#2f8873] transition-colors"
+                : "hover:text-orange-400 transition-colors"
             )}
           >
             <svg

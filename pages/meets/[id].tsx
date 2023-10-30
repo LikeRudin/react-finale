@@ -99,7 +99,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
   } = responseData as IResponse;
 
   const router = useRouter();
-  const user = useUser<UserData>();
+  const user = useUser<UserData>("MEETUP");
   const [isLiked, setIsLiked] = useState(false);
   const [isJoined, setIsJoined] = useState(false);
   const [isLikersModalOpened, setIsLikersModalOpened] = useState(false);
@@ -198,7 +198,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
 
   return (
     <Layout hasBack seoTitle="meetUp" title={meetUp.name}>
-      <div className="wrapper py-10 pb-20 text-gray-400 h-full bg-[rgb(20,20,20)]">
+      <div className="wrapper py-10 pb-20 text-gray-400 h-full ">
         <div className="topbox px-4 bg-[rgb(20,20,20)] py-2">
           <div className="picture h-96 bg-orange-300" />
           <div className="profile flex items-center cursor-pointer py-4 space-x-4 border-t border-b ">
@@ -236,7 +236,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
                 {isJoined ? "Joined this meet" : "Join this meet"}
               </button>
               <button
-                className="py-2 px-2 aspect-square rounded-md justify-center items-center text-gray-300 bg-color-gray-200 hover:bg-gray-300 group"
+                className="py-2 px-2 aspect-square rounded-md justify-center items-center text-gray-300 bg-color-gray-200 hover:bg-orange-300 group"
                 onClick={onLikeClick}
               >
                 <svg

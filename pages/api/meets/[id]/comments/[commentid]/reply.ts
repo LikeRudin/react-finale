@@ -5,11 +5,11 @@ import client from "@/libs/server/prisma-client";
 
 const handler: structuredNextApiHandler = async (req, res) => {
   const {
-    query: { id, parentId },
+    query: { id, commentid },
     session: { user },
-    body: { reply },
+    body: { reply, parentId },
   } = req;
-  if (!(id && user && reply && parentId)) {
+  if (!(id && user && reply && parentId && commentid)) {
     return res
       .status(404)
       .json({ ok: false, error: "잘못된 접근 요청입니다." });
@@ -25,22 +25,22 @@ const handler: structuredNextApiHandler = async (req, res) => {
   }
 
   const transaction = await client.$transaction([
-    client.comment.create({
+    client.meetUpComment.create({
       data: {
-        text: reply,
+        text: reply as string,
         user: {
           connect: {
             id: user.id,
           },
         },
-        post: {
-          connect: {
-            id: +id.toString(),
-          },
-        },
         parent: {
           connect: {
             id: +parentId.toString(),
+          },
+        },
+        meetUp: {
+          connect: {
+            id: +id.toString(),
           },
         },
       },
@@ -53,6 +53,16 @@ const handler: structuredNextApiHandler = async (req, res) => {
           connect: {
             id: user.id,
           },
+        },
+      },
+    }),
+    client.notification.create({
+      data: {
+        type: "MeetUpComment",
+        senderId: user.id,
+        placeId: +id.toString(),
+        receiver: {
+          connect: { id: meetUp.userId },
         },
       },
     }),
