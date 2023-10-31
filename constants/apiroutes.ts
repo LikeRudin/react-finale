@@ -4,43 +4,60 @@ export const APIROUTE = {
   ENTER_SIGNIN: "/api/users/available-test",
   ENTER_CREATION: "/api/users",
 
-  MEETS_INDEX: "/api/meets",
-  MEETS_DETAIL: (meetUpId: string) => `/api/meets/${meetUpId}`,
-  MEETS_LIKE: (meetUpId: string) => `/api/meets/${meetUpId}/like`,
-  MEETS_JOIN: (meetUpId: string) => `/api/meets/${meetUpId}/join`,
-  MEETS_COMMENTS: (meetUpId: string) => `/api/meets/${meetUpId}/comments`,
-  MEETS_COMMENTS_EDIT: (meetUpId: string, commentId: string) =>
-    `/api/meets/${meetUpId}/comments/${commentId}`,
-  MEETS_COMMENTS_LIKE: (meetUpId: string, commentId: string) =>
-    `/api/meets/${meetUpId}/comments/${commentId}/like`,
-  MEETS_COMMENTS_REPLY: (meetUpId: string, commentId: string) =>
-    `/api/meets/${meetUpId}/comments/${commentId}/reply`,
-
-  MEETS_REVIEWS: (meetUpId: string) => `/api/meets/${meetUpId}/reviews`,
-  MEETS_REVIEWS_INDEX: (meetUpId: string, reviewId: string) =>
-    `/api/meets/${meetUpId}/reviews/${reviewId}`,
-  MEETS_REVIEWS_LIKE: (meetUpId: string, reviewId: string) =>
-    `/api/meets/${meetUpId}/reviews/${reviewId}/like`,
-  MEETS_REVIEWS_COMMENTS: (meetUpId: string, reviewId: string) =>
-    `/api/meets/${meetUpId}/reviews/${reviewId}/comments`,
-  MEETS_REVIEWS_COMMENTS_INDEX: (
-    meetUpId: string,
-    reviewId: string,
-    commentId: string
-  ) => `/api/meets/${meetUpId}/reviews/${reviewId}/comments/${commentId}`,
-  MEETS_REVIEWS_COMMENTS_LIKE: (
-    meetUpId: string,
-    reviewId: string,
-    commentId: string
-  ) => `/api/meets/${meetUpId}/reviews/${reviewId}/comments/${commentId}/like`,
-  MEETS_REVIEWS_COMMENTS_REPLY: (
-    meetUpId: string,
-    reviewId: string,
-    commentId: string
-  ) => `/api/meets/${meetUpId}/reviews/${reviewId}/comments/${commentId}/reply`,
-
   ANY_USE_USER: (page: string | undefined) =>
     page ? `/api/users/me/${page}` : `/api/users/me`,
+};
+
+export const MEETS_API_ROUTE = {
+  INDEX: "/api/meets",
+  DETAIL: (meetUpId: string) => `/api/meets/${meetUpId}`,
+  LIKE: (meetUpId: string) => `/api/meets/${meetUpId}/like`,
+  JOIN: (meetUpId: string) => `/api/meets/${meetUpId}/join`,
+  COMMENTS: (meetUpId: string) => `/api/meets/${meetUpId}/comments`,
+  COMMENTS_EDIT: (meetUpId: string, commentId: string) =>
+    `/api/meets/${meetUpId}/comments/${commentId}`,
+  COMMENTS_LIKE: (meetUpId: string, commentId: string) =>
+    `/api/meets/${meetUpId}/comments/${commentId}/like`,
+  COMMENTS_REPLY: (meetUpId: string, commentId: string) =>
+    `/api/meets/${meetUpId}/comments/${commentId}/reply`,
+
+  REVIEWS: (meetUpId: string) => `/api/meets/${meetUpId}/reviews`,
+  REVIEWS_INDEX: (meetUpId: string, reviewId: string) =>
+    `/api/meets/${meetUpId}/reviews/${reviewId}`,
+  REVIEWS_LIKE: (meetUpId: string, reviewId: string) =>
+    `/api/meets/${meetUpId}/reviews/${reviewId}/like`,
+};
+
+export const COMMUNITY_API_ROUTE = {
+  DETAIL: (postId: string) => `/api/community/${postId}`,
+
+  COMMENTS: (postId: string) => `/api/community/${postId}/comments`,
+
+  COMMENTS_EDIT: (postId: string, commentId: string) =>
+    `/api/community/${postId}/comments/${commentId}`,
+
+  COMMENTS_LIKE: (postId: string, commentId: string) =>
+    `/api/community/${postId}/comments/${commentId}/like`,
+
+  COMMENTS_REPLY: (postId: string, commentId: string) =>
+    `/api/community/${postId}/comments/${commentId}/reply`,
+};
+
+export const REVIEWS_API_ROUTE = {
+  DETAIL: (reviewId: string) => `/api/reviews/${reviewId}`,
+
+  COMMENTS: (reviewId: string) => `/api/reviews/${reviewId}/comments`,
+  COMMENTS_EDIT: (reviewId: string, commentId: string) =>
+    `/api/reviews/${reviewId}/comments/${commentId}`,
+
+  COMMENTS_INDEX: (reviewId: string, commentId: string) =>
+    `/api/reviews/${reviewId}/comments/${commentId}`,
+
+  COMMENTS_LIKE: (reviewId: string, commentId: string) =>
+    `/api/reviews/${reviewId}/comments/${commentId}/like`,
+
+  COMMENTS_REPLY: (reviewId: string, commentId: string) =>
+    `/api//reviews/${reviewId}/comments/${commentId}/reply`,
 };
 
 export const enum ROUTE_PATH {
