@@ -4,7 +4,7 @@ import validateAndHandleRequest from "@/libs/server/request-validator";
 import client from "@/libs/server/prisma-client";
 import { Prisma } from "@prisma/client";
 import { fail } from "assert";
-import { HTTPMESSAGE } from "@/constants/apiroutes";
+import { HTTPMESSAGE } from "@/libs/util/apiroutes";
 
 const handler: structuredNextApiHandler = async (req, res) => {
   const {

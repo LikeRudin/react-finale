@@ -15,7 +15,7 @@ const handler: structuredNextApiHandler = async (req, res) => {
       .json({ ok: false, error: "비밀번호가 일치하지 않습니다." });
   }
   req.session.user = user;
-  req.session.save();
+  await req.session.save();
   return res.status(202).json({ ok: true, data: "로그인에 성공했습니다." });
 };
 
