@@ -19,7 +19,7 @@ import type {
 import useUser from "@/libs/client/useUser";
 import useMutation from "@/libs/client/useMutation";
 
-import { APIROUTE, MEETS_API_ROUTE } from "@/constants/apiroutes";
+import { APIROUTE, MEETS_API_ROUTE } from "@/libs/util/apiroutes";
 import { useEffect, useState } from "react";
 import cls from "@/libs/util/cls";
 

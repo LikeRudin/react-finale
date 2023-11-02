@@ -4,7 +4,7 @@ import {
   MEETS_API_ROUTE,
   REVIEWS_API_ROUTE,
   COMMUNITY_API_ROUTE,
-} from "@/constants/apiroutes";
+} from "@/libs/util/apiroutes";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { mutate } from "swr";

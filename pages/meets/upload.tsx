@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 import Input from "../components/input";
 import { useForm } from "react-hook-form";
 import useMutation from "@/libs/client/useMutation";
-import { MEETS_API_ROUTE } from "@/constants/apiroutes";
+import { MEETS_API_ROUTE } from "@/libs/util/apiroutes";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import TextArea from "../components/textarea";
