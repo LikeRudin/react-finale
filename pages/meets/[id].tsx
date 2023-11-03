@@ -1,4 +1,9 @@
-import { GetServerSideProps, NextPage } from "next";
+import type {
+  GetServerSideProps,
+  NextPage,
+  GetServerSidePropsContext,
+} from "next";
+import { withSessionSSR } from "@/libs/server/session";
 import { useRouter } from "next/router";
 
 import useSWR from "swr";
@@ -16,11 +21,10 @@ import type {
   MeetUpCommentLike,
 } from "@prisma/client";
 
-import useUser from "@/libs/client/useUser";
 import useMutation from "@/libs/client/useMutation";
 
-import { APIROUTE, MEETS_API_ROUTE } from "@/libs/util/apiroutes";
-import { useEffect, useState } from "react";
+import { MEETS_API_ROUTE } from "@/libs/util/apiroutes";
+import { useState } from "react";
 import cls from "@/libs/util/cls";
 
 type MeetUpComment = {
@@ -41,18 +45,8 @@ type MeetUpComment = {
 type MeetUpDetail = MeetUp & {
   userId: number;
   user: { username: string };
-  joins: {
-    userId: number;
-    user: {
-      username: string;
-    };
-  }[];
-  likes: {
-    userId: number;
-    user: {
-      username: string;
-    };
-  }[];
+  joins: (MeetUpJoin & { user: { username: string } })[];
+  likes: (MeetUpLike & { user: { username: string } })[];
   comments: MeetUpComment[];
 };
 
@@ -73,35 +67,75 @@ interface UserData {
 interface MeetDetailProps {
   pageId: string;
   meetUpProp: MeetUpDetail;
+  userId: number;
+  isLikedInit: boolean;
+  isJoinedInit: boolean;
 }
 
 interface IResponse {
   status: "ok" | "fail" | "error";
-  data: { meetUp: MeetUpDetail; isLiked: boolean };
+  data: { meetUp: MeetUpDetail; isLiked: boolean; isJoined: boolean };
 }
 
 interface ReplyForm {
   reply: string;
 }
 
-const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
+const MeetDetail: NextPage<MeetDetailProps> = ({
+  meetUpProp,
+  pageId,
+  isJoinedInit,
+  isLikedInit,
+  userId,
+}) => {
   const { data: responseData, mutate } = useSWR<IResponse>(
     MEETS_API_ROUTE.DETAIL(pageId),
     {
       fallbackData: {
         status: "ok",
-        data: { meetUp: meetUpProp, isLiked: false },
+        data: {
+          meetUp: meetUpProp,
+          isLiked: isLikedInit,
+          isJoined: isJoinedInit,
+        },
       },
     }
   );
   const {
-    data: { meetUp },
+    data: { meetUp, isLiked, isJoined },
   } = responseData as IResponse;
 
   const router = useRouter();
-  const user = useUser<UserData>("MEETUP");
-  const [isLiked, setIsLiked] = useState(false);
-  const [isJoined, setIsJoined] = useState(false);
+
+  const { trigger: likeTrigger, state: likeState } = useMutation(
+    MEETS_API_ROUTE.LIKE(String(router.query.id)),
+    "POST"
+  );
+  const onLikeClick = async () => {
+    await likeTrigger();
+    mutate();
+  };
+
+  const { trigger: joinTrigger, state: joinState } = useMutation(
+    MEETS_API_ROUTE.JOIN(String(router.query.id)),
+    "POST"
+  );
+  const onJoinClick = async () => {
+    await joinTrigger();
+    mutate();
+  };
+
+  const { register, handleSubmit, setValue } = useForm<ReplyForm>();
+
+  const { trigger: commentTrigger, state: commentState } = useMutation(
+    MEETS_API_ROUTE.COMMENTS(String(router.query.id)),
+    "POST"
+  );
+
+  const onValid = ({ reply }: ReplyForm) => {
+    commentTrigger({ reply });
+  };
+
   const [isLikersModalOpened, setIsLikersModalOpened] = useState(false);
   const [isJoinersModalOpened, setIsJoinersModalOpened] = useState(false);
 
@@ -111,54 +145,9 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
   const onLikersClick = () => {
     setIsLikersModalOpened((prev) => !prev);
   };
-
-  const { register, handleSubmit, setValue } = useForm<ReplyForm>();
-  const { trigger: likeTrigger, state: likeState } = useMutation(
-    MEETS_API_ROUTE.LIKE(String(router.query.id)),
-    "POST"
-  );
-  const { trigger: joinTrigger, state: joinState } = useMutation(
-    MEETS_API_ROUTE.JOIN(String(router.query.id)),
-    "POST"
-  );
-
-  const { trigger: commentTrigger, state: commentState } = useMutation(
-    MEETS_API_ROUTE.COMMENTS(String(router.query.id)),
-    "POST"
-  );
-
-  const onValid = async ({ reply }: ReplyForm) => {
-    commentTrigger({ reply });
-  };
-  const onLikeClick = async () => {
-    if (user.status !== "ok") {
-      return;
-    }
-    likeTrigger();
-  };
-  const onJoinClick = async () => {
-    joinTrigger();
-  };
-
-  useEffect(() => {
-    console.log("effect!");
-    if (user.status === "ok") {
-      user.mutate();
-      setIsLiked(
-        user?.userData?.meetUpLikes.some(
-          (item) => item.meetUpId === +String(router!.query!.id)
-        )
-      );
-      if (joinState.status === "ok") {
-        setIsJoined(
-          meetUp.joins?.some((item) => item.userId === user.userData.id)
-        );
-      }
-      if (likeState.status === "ok" || commentState.status === "ok") {
-        mutate();
-      }
-    }
-  }, [router, user, mutate, likeState, joinState, commentState, meetUp.joins]);
+  if (!meetUp) {
+    return <p>loadiong</p>;
+  }
 
   return (
     <Layout hasBack seoTitle='meetUp' title={meetUp.name}>
@@ -200,7 +189,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
                 {isJoined ? "Joined this meet" : "Join this meet"}
               </button>
               <button
-                className='py-2 px-2 aspect-square rounded-md justify-center items-center text-gray-300 bg-color-gray-200 hover:bg-orange-300 group'
+                className='py-2 px-2 aspect-square rounded-md justify-center items-center text-gray-300 bg-color-gray-200 hover:bg-orange-300 group"'
                 onClick={onLikeClick}
               >
                 <svg
@@ -211,7 +200,6 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
                       : "fill-gray-400 group-hover:fill-red-500"
                   )}
                   xmlns='http://www.w3.org/2000/svg'
-                  fill='none'
                   viewBox='0 0 24 24'
                   stroke='currentColor'
                   aria-hidden='true'
@@ -245,36 +233,35 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
         </div>
         <div className='bg-[rgb(20,20,20)] w-full px-4 '>
           <p>{`comments: ${meetUp.comments?.length}`}</p>
-          {user.status === "ok" &&
-            meetUp.comments?.map((comment, index) => {
-              const {
-                id,
-                text,
-                createdAt,
-                user: { username, id: userId, avatar },
-                parent,
-                comments,
-                likes,
-              } = comment;
-              return (
-                !parent && (
-                  <Comment
-                    comments={comments as []}
-                    key={index}
-                    postId={meetUp.id.toString()}
-                    likes={likes?.length}
-                    owner={userId === user.userData.id}
-                    writtenAt={createdAt}
-                    userId={String(user.userData.id)}
-                    avatar={avatar}
-                    text={text}
-                    userName={username}
-                    id={id.toString()}
-                    kind='MeetUp'
-                  />
-                )
-              );
-            })}
+          {meetUp.comments.map((comment, index) => {
+            const {
+              id,
+              text,
+              createdAt,
+              user: { username, id: userId, avatar },
+              parent,
+              comments,
+              likes,
+            } = comment;
+            return (
+              !parent && (
+                <Comment
+                  comments={comments as []}
+                  key={index}
+                  postId={meetUp.id.toString()}
+                  likes={likes?.length}
+                  owner={userId === userId}
+                  writtenAt={createdAt}
+                  userId={String(userId)}
+                  avatar={avatar}
+                  text={text}
+                  userName={username}
+                  id={id.toString()}
+                  kind='MeetUp'
+                />
+              )
+            );
+          })}
           <form onSubmit={handleSubmit(onValid)}>
             <TextArea
               register={register("reply", { required: true })}
@@ -336,7 +323,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
         onClick={onLikersClick}
       >
         <div className='flex flex-col w-1/2 space-y-5 py-10 px-2 h-2/3 bg-white overflow-y-auto'>
-          {meetUp.likes.length ? (
+          {(meetUp as MeetUpDetail).likes.length ? (
             meetUp.likes.map((like, index) => {
               const {
                 user: { username },
@@ -372,82 +359,90 @@ const MeetDetail: NextPage<MeetDetailProps> = ({ meetUpProp, pageId }) => {
 
 export default MeetDetail;
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  if (!context?.params?.id) {
-    return { props: {} };
+export const getServerSideProps: GetServerSideProps = withSessionSSR(
+  async ({ req, params }: GetServerSidePropsContext) => {
+    if (!(params?.id && req.session.user)) {
+      return { props: {} };
+    }
+    const pageId = params.id.toString();
+
+    await client.meetUp.update({
+      where: {
+        id: +pageId,
+      },
+      data: {
+        viewCount: { increment: 1 },
+      },
+    });
+    const meetUp = await client.meetUp.findUnique({
+      where: {
+        id: +pageId,
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+          },
+        },
+        likes: {
+          select: {
+            userId: true,
+            user: {
+              select: {
+                username: true,
+              },
+            },
+          },
+        },
+        joins: {
+          select: {
+            userId: true,
+            user: {
+              select: {
+                username: true,
+              },
+            },
+          },
+        },
+        comments: {
+          select: {
+            id: true,
+            createdAt: true,
+            text: true,
+            user: {
+              select: {
+                id: true,
+                avatar: true,
+                username: true,
+              },
+            },
+            likes: {
+              select: {
+                id: true,
+                userId: true,
+              },
+            },
+            parent: true,
+            parentId: true,
+            comments: {
+              include: { user: true, comments: true, likes: true },
+            },
+          },
+        },
+      },
+    });
+    const { user } = req.session;
+    console.log(user);
+    const isLikedInit = meetUp?.likes.some((like) => like.userId === user?.id);
+    const isJoinedInit = meetUp?.joins.some((join) => join.userId === user?.id);
+    return {
+      props: {
+        meetUpProp: JSON.parse(JSON.stringify(meetUp)),
+        pageId,
+        isLikedInit,
+        isJoinedInit,
+        userId: user?.id,
+      },
+    };
   }
-
-  const pageId = context.params.id.toString();
-
-  await client.meetUp.update({
-    where: {
-      id: +pageId,
-    },
-    data: {
-      viewCount: { increment: 1 },
-    },
-  });
-  const meetUp = await client.meetUp.findUnique({
-    where: {
-      id: +pageId,
-    },
-    include: {
-      user: {
-        select: {
-          username: true,
-        },
-      },
-      likes: {
-        select: {
-          user: {
-            select: {
-              id: true,
-              username: true,
-            },
-          },
-        },
-      },
-      joins: {
-        select: {
-          userId: true,
-          user: {
-            select: {
-              username: true,
-            },
-          },
-        },
-      },
-      comments: {
-        select: {
-          id: true,
-          createdAt: true,
-          text: true,
-          user: {
-            select: {
-              id: true,
-              avatar: true,
-              username: true,
-            },
-          },
-          likes: {
-            select: {
-              id: true,
-              userId: true,
-            },
-          },
-          parent: true,
-          parentId: true,
-          comments: {
-            include: { user: true, comments: true, likes: true },
-          },
-        },
-      },
-    },
-  });
-  return {
-    props: {
-      meetUpProp: JSON.parse(JSON.stringify(meetUp)),
-      pageId,
-    },
-  };
-};
+);
