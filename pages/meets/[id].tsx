@@ -24,8 +24,9 @@ import type {
 import useMutation from "@/libs/client/useMutation";
 
 import { MEETS_API_ROUTE } from "@/libs/util/apiroutes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import cls from "@/libs/util/cls";
+import { comment } from "postcss";
 
 type MeetUpComment = {
   id: number;
@@ -111,18 +112,16 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
     MEETS_API_ROUTE.LIKE(String(router.query.id)),
     "POST"
   );
-  const onLikeClick = async () => {
-    await likeTrigger();
-    mutate();
+  const onLikeClick = () => {
+    likeTrigger();
   };
 
   const { trigger: joinTrigger, state: joinState } = useMutation(
     MEETS_API_ROUTE.JOIN(String(router.query.id)),
     "POST"
   );
-  const onJoinClick = async () => {
-    await joinTrigger();
-    mutate();
+  const onJoinClick = () => {
+    joinTrigger();
   };
 
   const { register, handleSubmit, setValue } = useForm<ReplyForm>();
@@ -145,9 +144,24 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
   const onLikersClick = () => {
     setIsLikersModalOpened((prev) => !prev);
   };
-  if (!meetUp) {
-    return <p>loadiong</p>;
-  }
+
+  useEffect(() => {
+    if (commentState.status === "ok") {
+      mutate();
+    }
+  }, [commentState]);
+
+  useEffect(() => {
+    if (likeState.status === "ok") {
+      mutate();
+    }
+  }, [likeState]);
+
+  useEffect(() => {
+    if (joinState.status === "ok") {
+      mutate();
+    }
+  }, [joinState]);
 
   return (
     <Layout hasBack seoTitle='meetUp' title={meetUp.name}>
