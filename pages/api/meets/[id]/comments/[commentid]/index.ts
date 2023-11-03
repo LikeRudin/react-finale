@@ -1,5 +1,5 @@
 import { structuredNextApiHandler } from "@/libs/server/request-validator";
-import withSessionApiRoute from "@/libs/server/session";
+import { withSessionApiRoute } from "@/libs/server/session";
 import validateAndHandleRequest from "@/libs/server/request-validator";
 import client from "@/libs/server/prisma-client";
 import { HTTPMESSAGE } from "@/libs/util/apiroutes";

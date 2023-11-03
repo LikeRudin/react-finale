@@ -3,7 +3,7 @@ import validateAndHandleRequest, {
 } from "@/libs/server/request-validator";
 import client from "@/libs/server/prisma-client";
 import { User } from "@prisma/client";
-import withSessionApiRoute from "@/libs/server/session";
+import { withSessionApiRoute } from "@/libs/server/session";
 
 const handler: structuredNextApiHandler = async (req, res) => {
   const { id } = req.session.user as User;

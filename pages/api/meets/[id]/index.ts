@@ -1,5 +1,5 @@
 import { structuredNextApiHandler } from "@/libs/server/request-validator";
-import withSessionApiRoute from "@/libs/server/session";
+import { withSessionApiRoute } from "@/libs/server/session";
 import validateAndHandleRequest from "@/libs/server/request-validator";
 import client from "@/libs/server/prisma-client";
 
@@ -31,9 +31,9 @@ const handler: structuredNextApiHandler = async (req, res) => {
           },
           likes: {
             select: {
+              userId: true,
               user: {
                 select: {
-                  id: true,
                   username: true,
                 },
               },
@@ -76,8 +76,12 @@ const handler: structuredNextApiHandler = async (req, res) => {
           .status(404)
           .json({ ok: false, error: "MeetUp이 존재하지 않습니다." });
       }
-      const isLiked = meetUp.likes.some((item) => item.user.id === user.id);
-      return res.status(202).json({ ok: true, data: { meetUp, isLiked } });
+      const isLiked = meetUp.likes.some((item) => item.userId === user.id);
+
+      const isJoined = meetUp.joins.some((item) => item.userId === user.id);
+      return res
+        .status(202)
+        .json({ ok: true, data: { meetUp, isLiked, isJoined } });
     case "PUT":
       if (+id!.toString() !== user.id) {
         return res.status(404).json({

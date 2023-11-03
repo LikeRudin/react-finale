@@ -1,7 +1,8 @@
 import { IronSessionOptions } from "iron-session";
 import { withIronSessionApiRoute } from "iron-session/next";
 import { User } from "@prisma/client";
-import { NextApiHandler } from "next";
+import { GetServerSideProps, NextApiHandler } from "next";
+import { withIronSessionSsr } from "iron-session/next";
 
 const sessionOptions: IronSessionOptions = {
   password: process.env.SECRET_COOKIE_PASSWORD as string,
@@ -17,7 +18,8 @@ declare module "iron-session" {
   }
 }
 
-const withSessionApiRoute = (handler: NextApiHandler) =>
+export const withSessionApiRoute = (handler: NextApiHandler) =>
   withIronSessionApiRoute(handler, sessionOptions);
 
-export default withSessionApiRoute;
+export const withSessionSSR = (handler: GetServerSideProps) =>
+  withIronSessionSsr(handler, sessionOptions);
