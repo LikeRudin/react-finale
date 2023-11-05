@@ -46,7 +46,7 @@ const Upload: NextPage = () => {
   });
 
   return (
-    <Layout title='MeetUp 모집' seoTitle='MeetUp 모집' hasBack>
+    <Layout title='MeetUp 모집' hasTopBar seoTitle='MeetUp 모집' hasBack>
       <form onSubmit={handleSubmit(onValid)} className='px-4 bg-inherit py-12'>
         <label className='w-full h-48  flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-600 hover:text-orange-600 cursor-pointer'>
           <svg

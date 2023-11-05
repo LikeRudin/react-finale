@@ -26,7 +26,6 @@ import useMutation from "@/libs/client/useMutation";
 import { MEETS_API_ROUTE } from "@/libs/util/apiroutes";
 import { useEffect, useState } from "react";
 import cls from "@/libs/util/cls";
-import { comment } from "postcss";
 
 type MeetUpComment = {
   id: number;
@@ -51,20 +50,6 @@ type MeetUpDetail = MeetUp & {
   comments: MeetUpComment[];
 };
 
-interface UserData {
-  meetUpLikes: {
-    meetUpId: number;
-  }[];
-
-  id: number;
-  email: string | null;
-  phone: string | null;
-  password: string;
-  username: string;
-  createdAt: Date;
-  updatedAt: Date;
-  avatar: string | null;
-}
 interface MeetDetailProps {
   pageId: string;
   meetUpProp: MeetUpDetail;
@@ -89,36 +74,37 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
   isLikedInit,
   userId,
 }) => {
-  const { data: responseData, mutate } = useSWR<IResponse>(
-    MEETS_API_ROUTE.DETAIL(pageId),
-    {
-      fallbackData: {
-        status: "ok",
-        data: {
-          meetUp: meetUpProp,
-          isLiked: isLikedInit,
-          isJoined: isJoinedInit,
-        },
-      },
-    }
-  );
   const {
-    data: { meetUp, isLiked, isJoined },
-  } = responseData as IResponse;
+    data: {
+      data: { meetUp, isLiked, isJoined },
+    },
+    mutate,
+  } = useSWR<IResponse>(MEETS_API_ROUTE.DETAIL(pageId), {
+    fallbackData: {
+      status: "ok",
+      data: {
+        meetUp: meetUpProp,
+        isLiked: isLikedInit,
+        isJoined: isJoinedInit,
+      },
+    },
+  }) as { data: IResponse } & ReturnType<typeof useSWR>;
 
   const router = useRouter();
 
-  const { trigger: likeTrigger, state: likeState } = useMutation(
+  const { trigger: likeTrigger } = useMutation(
     MEETS_API_ROUTE.LIKE(String(router.query.id)),
-    "POST"
+    "POST",
+    mutate
   );
   const onLikeClick = () => {
     likeTrigger();
   };
 
-  const { trigger: joinTrigger, state: joinState } = useMutation(
+  const { trigger: joinTrigger } = useMutation(
     MEETS_API_ROUTE.JOIN(String(router.query.id)),
-    "POST"
+    "POST",
+    mutate
   );
   const onJoinClick = () => {
     joinTrigger();
@@ -126,9 +112,10 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
 
   const { register, handleSubmit, setValue } = useForm<ReplyForm>();
 
-  const { trigger: commentTrigger, state: commentState } = useMutation(
+  const { trigger: commentTrigger } = useMutation(
     MEETS_API_ROUTE.COMMENTS(String(router.query.id)),
-    "POST"
+    "POST",
+    mutate
   );
 
   const onValid = ({ reply }: ReplyForm) => {
@@ -145,26 +132,8 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
     setIsLikersModalOpened((prev) => !prev);
   };
 
-  useEffect(() => {
-    if (commentState.status === "ok") {
-      mutate();
-    }
-  }, [commentState]);
-
-  useEffect(() => {
-    if (likeState.status === "ok") {
-      mutate();
-    }
-  }, [likeState]);
-
-  useEffect(() => {
-    if (joinState.status === "ok") {
-      mutate();
-    }
-  }, [joinState]);
-
   return (
-    <Layout hasBack seoTitle='meetUp' title={meetUp.name}>
+    <Layout hasBack hasTopBar seoTitle='meetUp' title={meetUp.name}>
       <div className='wrapper py-10 pb-20 text-gray-400 h-full '>
         <div className='topbox px-4 bg-[rgb(20,20,20)] py-2'>
           <div className='picture h-96 bg-orange-300' />
@@ -252,7 +221,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
               id,
               text,
               createdAt,
-              user: { username, id: userId, avatar },
+              user: { username, id: ownerId, avatar },
               parent,
               comments,
               likes,
@@ -264,7 +233,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
                   key={index}
                   postId={meetUp.id.toString()}
                   likes={likes?.length}
-                  owner={userId === userId}
+                  owner={ownerId === userId}
                   writtenAt={createdAt}
                   userId={String(userId)}
                   avatar={avatar}
