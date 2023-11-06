@@ -29,18 +29,18 @@ export const MEETS_API_ROUTE = {
 };
 
 export const COMMUNITY_API_ROUTE = {
-  DETAIL: (postId: string) => `/api/community/${postId}`,
+  DETAIL: (postId: string) => `/api/tweets/${postId}`,
 
-  COMMENTS: (postId: string) => `/api/community/${postId}/comments`,
+  COMMENTS: (postId: string) => `/api/tweets/${postId}/comments`,
 
   COMMENTS_EDIT: (postId: string, commentId: string) =>
-    `/api/community/${postId}/comments/${commentId}`,
+    `/api/tweets/${postId}/comments/${commentId}`,
 
   COMMENTS_LIKE: (postId: string, commentId: string) =>
-    `/api/community/${postId}/comments/${commentId}/like`,
+    `/api/tweets/${postId}/comments/${commentId}/like`,
 
   COMMENTS_REPLY: (postId: string, commentId: string) =>
-    `/api/community/${postId}/comments/${commentId}/reply`,
+    `/api/tweets/${postId}/comments/${commentId}/reply`,
 };
 
 export const REVIEWS_API_ROUTE = {
@@ -63,7 +63,7 @@ export const REVIEWS_API_ROUTE = {
 export const enum ROUTE_PATH {
   ENTER = "/enter",
   INDEX = "/",
-  COMMUNITY = "/community",
+  TWEET = "/tweets",
   CHAT = "/chats",
   LIVE = "/live",
   PROFILE = "/profile",

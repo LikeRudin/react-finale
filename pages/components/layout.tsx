@@ -94,10 +94,10 @@ const Layout = ({
             <span>모여서함께</span>
           </Link>
           <Link
-            href={ROUTE_PATH.COMMUNITY}
+            href={ROUTE_PATH.TWEET}
             className={cls(
               "flex flex-col items-center space-y-2",
-              router.pathname === ROUTE_PATH.COMMUNITY
+              router.pathname === ROUTE_PATH.TWEET
                 ? "text-white"
                 : "hover:text-orange-400 transition-colors"
             )}
