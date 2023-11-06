@@ -28,9 +28,9 @@ export const MEETS_API_ROUTE = {
     `/api/meets/${meetUpId}/reviews/${reviewId}/like`,
 };
 
-export const COMMUNITY_API_ROUTE = {
+export const TWEETS_API_ROUTE = {
+  INDEX: `/api/tweets`,
   DETAIL: (postId: string) => `/api/tweets/${postId}`,
-
   COMMENTS: (postId: string) => `/api/tweets/${postId}/comments`,
 
   COMMENTS_EDIT: (postId: string, commentId: string) =>
@@ -69,7 +69,8 @@ export const enum ROUTE_PATH {
   PROFILE = "/profile",
 }
 
-export const enum HTTPMESSAGE {
-  "STATUS404" = "잘못된 접근입니다.",
-  "STATUS500" = "알 수 없는 오류에의해 실패했습니다.",
-}
+export const HTTPMESSAGE = {
+  STATUS404: (message: string | undefined) => `잘못된 접근입니다. ${message}`,
+  STATUS500: (message: string | undefined) =>
+    `알 수 없는 오류에의해 실패했습니다. ${message}`,
+};
