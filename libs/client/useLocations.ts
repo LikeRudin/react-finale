@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 
-type UseLocations =
+type UseLocation =
   | { longitude: number; latitude: number }
   | { longitude: null; latitude: null };
 
-const useLocations = () => {
-  const [coords, setCoords] = useState<UseLocations>({
+const useLocation = () => {
+  const [coords, setCoords] = useState<UseLocation>({
     longitude: null,
     latitude: null,
   });
@@ -17,7 +17,9 @@ const useLocations = () => {
   };
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(onGeoSuccess);
-  });
+  }, []);
 
   return coords;
 };
+
+export default useLocation;
