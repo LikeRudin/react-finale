@@ -1,4 +1,4 @@
-import { structuredNextApiHandler } from "@/libs/server/request-validator";
+import type { structuredNextApiHandler } from "@/libs/server/request-validator";
 import { withSessionApiRoute } from "@/libs/server/session";
 import validateAndHandleRequest from "@/libs/server/request-validator";
 import client from "@/libs/server/prisma-client";

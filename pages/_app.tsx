@@ -21,7 +21,7 @@ export default function App({ Component, pageProps }: AppProps) {
             }),
       }}
     >
-      <div className="w-full max-w-xl min-w-md mx-auto">
+      <div className='w-full max-w-xl min-w-md mx-auto'>
         <Component {...pageProps} />
       </div>
     </SWRConfig>

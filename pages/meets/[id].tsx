@@ -24,7 +24,7 @@ import type {
 import useMutation from "@/libs/client/useMutation";
 
 import { MEETS_API_ROUTE } from "@/libs/util/apiroutes";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import cls from "@/libs/util/cls";
 
 type MeetUpComment = {
@@ -97,6 +97,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
     "POST",
     mutate
   );
+
   const onLikeClick = () => {
     likeTrigger();
   };
@@ -106,6 +107,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
     "POST",
     mutate
   );
+
   const onJoinClick = () => {
     joinTrigger();
   };

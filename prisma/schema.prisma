@@ -38,10 +38,10 @@ model User {
   reviewComment ReviewComment[]
   reviewCommentLikes ReviewCommentLike[]
 
-  posts Post[]
-  postLikes PostLike[]
-  comments Comment[]
-  commentLikes CommentLike[]
+  Tweets Tweet[]
+  TweetLikes TweetLike[]
+  comments TweetComment[]
+  commentLikes TweetCommentLike[]
 
   streams Stream[]
   streamMessages StreamMessage[]
@@ -234,7 +234,7 @@ model ReviewCommentLike{
 }
 
 
-model Post {
+model Tweet {
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -243,48 +243,48 @@ model Post {
   userId Int  
 
   parentId Int? 
-  parent Post? @relation("commentToComment", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  posts Post[] @relation("commentToComment")
+  parent Tweet? @relation("commentToComment", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  Tweets Tweet[] @relation("commentToComment")
 
 
-  post String @db.MediumText
-  images PostImage[]
+  Tweet String @db.MediumText
+  images TweetImage[]
   
 
-  comments Comment[]
-  likes PostLike[]
+  comments TweetComment[]
+  likes TweetLike[]
 
   @@index([userId])
   @@index([parentId])
 
 }
-model PostImage{
+model TweetImage{
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId Int
+  Tweet Tweet @relation(fields: [TweetId], references: [id], onDelete: Cascade)
+  TweetId Int
 
-  @@index([postId])
+  @@index([TweetId])
 
 }
 
-model PostLike {
+model TweetLike {
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId Int
+  Tweet Tweet @relation(fields: [TweetId], references: [id], onDelete: Cascade)
+  TweetId Int
 
   @@index([userId])
-  @@index([postId])
+  @@index([TweetId])
 }
 
-model Comment {
+model TweetComment {
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -293,21 +293,21 @@ model Comment {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId Int
+  Tweet Tweet @relation(fields: [TweetId], references: [id], onDelete: Cascade)
+  TweetId Int
 
   parentId Int? 
-  parent Comment? @relation("commentToComment", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  comments Comment[] @relation("commentToComment")
+  parent TweetComment? @relation("commentToComment", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  comments TweetComment[] @relation("commentToComment")
 
-  likes CommentLike[]
+  likes TweetCommentLike[]
 
   @@index([parentId])
-  @@index([postId])
+  @@index([TweetId])
   @@index([userId])
 }
 
-model CommentLike {
+model TweetCommentLike {
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -315,7 +315,7 @@ model CommentLike {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  
 
-  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  comment TweetComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
   commentId Int
 
   @@index([userId])
@@ -388,12 +388,12 @@ enum Activity{
   ReviewComment
   ReviewCommentEdit
   ReviewCommentLike
-  Post
-  PostEdit
-  PostLike
-  Comment
-  CommentEdit
-  CommentLike
+  Tweet
+  TweetEdit
+  TweetLike
+  TweetComment
+  TweetCommentEdit
+  TweetCommentLike
   MeetUpJoin
   EditProfile
 }
@@ -424,8 +424,8 @@ enum OthersReaction {
   ReviewLike
   ReviewComment
   ReviewCommentLike
-  Post
-  PostLike
+  Tweet
+  TweetLike
   Comment
   CommentLike
   MeetUpJoin

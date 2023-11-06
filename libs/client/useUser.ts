@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { APIROUTE } from "@/constants/apiroutes";
+import { APIROUTE } from "@/libs/util/apiroutes";
 import type { KeyedMutator } from "swr";
 
 type PageInfo = "MEETUP" | "PROFILE" | "CHAT" | "LIVE" | "";
@@ -9,8 +9,6 @@ type UseUserState<T> =
   | { status: "fail"; error: object | string }
   | { status: "error"; error: object | string }
   | { status: "loading" };
-
-type UserSWR<T> = UseUserState<T>;
 
 const useUser = <T>(page: PageInfo = ""): UseUserState<T> => {
   const { data, error, mutate } = useSWR(

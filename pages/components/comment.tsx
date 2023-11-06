@@ -10,12 +10,12 @@ import { useForm } from "react-hook-form";
 import { mutate } from "swr";
 import SubmitButton from "./submit-button";
 import TextArea from "./textarea";
-import type { Comment, CommentLike, User } from "@prisma/client";
+import type { TweetComment, TweetCommentLike, User } from "@prisma/client";
 
-type CommentType = Comment & {
+type CommentType = TweetComment & {
   user: User;
-  comments: Comment[];
-  likes: CommentLike[];
+  comments: TweetComment[];
+  likes: TweetCommentLike[];
 };
 
 interface CommentProps {

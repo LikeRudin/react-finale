@@ -1,6 +1,7 @@
-import { structuredNextApiHandler } from "@/libs/server/request-validator";
-import { withSessionApiRoute } from "@/libs/server/session";
+import type { structuredNextApiHandler } from "@/libs/server/request-validator";
 import validateAndHandleRequest from "@/libs/server/request-validator";
+import { withSessionApiRoute } from "@/libs/server/session";
+
 import client from "@/libs/server/prisma-client";
 
 const handler: structuredNextApiHandler = async (req, res) => {

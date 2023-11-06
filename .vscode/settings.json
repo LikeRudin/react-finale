@@ -1,0 +1,11 @@
+{
+  "typescript.tsdk": "/usr/lib/node_modules/typescript/lib",
+  "editor.accessibilityPageSize": 500,
+  "editor.accessibilitySupport": "on",
+  "editor.foldingMaximumRegions": 500,
+  "workbench.commandPalette.history": 0,
+  "workbench.localHistory.maxFileSize": 512,
+  "workbench.startupEditor": "none",
+  "workbench.colorTheme": "Community Material Theme Darker High Contrast",
+  "workbench.preferredDarkColorTheme": "Kimbie Dark"
+}
