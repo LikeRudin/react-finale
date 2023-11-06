@@ -40,8 +40,8 @@ model User {
 
   Tweets Tweet[]
   TweetLikes TweetLike[]
-  comments TweetComment[]
-  commentLikes TweetCommentLike[]
+  TweetComments TweetComment[]
+  TweetCommentLikes TweetCommentLike[]
 
   streams Stream[]
   streamMessages StreamMessage[]
@@ -242,12 +242,18 @@ model Tweet {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  
 
+  name String
   parentId Int? 
-  parent Tweet? @relation("commentToComment", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  Tweets Tweet[] @relation("commentToComment")
+  parent Tweet? @relation("tweetToTweet", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  tweets Tweet[] @relation("tweetToTweet")
+  latitude  Float?
+  longitude Float?
+  showLocation Boolean
+  viewCount Int @default(0)
 
 
-  Tweet String @db.MediumText
+  description String @db.MediumText
+  category TweetCategory
   images TweetImage[]
   
 
@@ -429,4 +435,12 @@ enum OthersReaction {
   Comment
   CommentLike
   MeetUpJoin
+}
+
+enum TweetCategory {
+  Recommend
+  Conversation
+  Fun
+  Question
+  ETC
 }
