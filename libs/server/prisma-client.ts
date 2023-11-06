@@ -40,6 +40,58 @@ const createClient = () => {
           return null;
         },
       },
+      tweet: {
+        async getTweetDetail(id: number, userId: number) {
+          const tweet = await client.tweet.findUnique({
+            where: {
+              id: +id.toString(),
+            },
+            include: {
+              user: {
+                select: {
+                  username: true,
+                },
+              },
+              likes: {
+                select: {
+                  userId: true,
+                  user: {
+                    select: {
+                      username: true,
+                    },
+                  },
+                },
+              },
+              tweets: true,
+              comments: {
+                select: {
+                  id: true,
+                  createdAt: true,
+                  text: true,
+                  user: {
+                    select: {
+                      id: true,
+                      avatar: true,
+                      username: true,
+                    },
+                  },
+                  parent: true,
+                  parentId: true,
+                  likes: true,
+                  comments: {
+                    include: { user: true, likes: true, comments: true },
+                  },
+                },
+              },
+            },
+          });
+          if (!tweet) {
+            return null;
+          }
+          const isLiked = tweet.likes.some((item) => item.userId === userId);
+          return { tweet, isLiked };
+        },
+      },
     },
   });
   return client;
