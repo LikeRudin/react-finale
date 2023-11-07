@@ -9,10 +9,12 @@ import { useRouter } from "next/router";
 import useSWR from "swr";
 
 import { useForm } from "react-hook-form";
+
 import TextArea from "../components/textarea";
 import Layout from "../components/layout";
 import SubmitButton from "../components/submit-button";
 import Comment from "../components/comment";
+import MiniProfile from "../components/mini-profile";
 import client from "@/libs/server/prisma-client";
 import type {
   MeetUp,
@@ -23,9 +25,11 @@ import type {
 
 import useMutation from "@/libs/client/useMutation";
 
-import { MEETS_API_ROUTE } from "@/libs/util/apiroutes";
+import { MEETS_API_ROUTE, ROUTE_PATH } from "@/libs/util/apiroutes";
 import { useState } from "react";
 import cls from "@/libs/util/cls";
+import { timeFormatter } from "@/libs/util/time-formatter";
+import HeartIcon from "../components/icons/heart";
 
 type MeetUpComment = {
   id: number;
@@ -52,7 +56,7 @@ type MeetUpDetail = MeetUp & {
 
 interface MeetDetailProps {
   pageId: string;
-  meetUpProp: MeetUpDetail;
+  meetUpInit: MeetUpDetail;
   userId: number;
   isLikedInit: boolean;
   isJoinedInit: boolean;
@@ -68,7 +72,7 @@ interface ReplyForm {
 }
 
 const MeetDetail: NextPage<MeetDetailProps> = ({
-  meetUpProp,
+  meetUpInit,
   pageId,
   isJoinedInit,
   isLikedInit,
@@ -83,7 +87,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
     fallbackData: {
       status: "ok",
       data: {
-        meetUp: meetUpProp,
+        meetUp: meetUpInit,
         isLiked: isLikedInit,
         isJoined: isJoinedInit,
       },
@@ -139,27 +143,19 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
       <div className='wrapper py-10 pb-20 text-gray-400 h-full '>
         <div className='topbox px-4 bg-[rgb(20,20,20)] py-2'>
           <div className='picture h-96 bg-orange-300' />
-          <div className='profile flex items-center cursor-pointer py-4 space-x-4 border-t border-b '>
-            <div className='rounded-full w-[48px] h-[48px] bg-orange-500' />
-            <div className='flex-col space-y-1'>
-              <p className='text-sm font-medium text-gray-300'>
-                {meetUp.user?.username}
-              </p>
-              <p className='text-xs font-medium text-gray-400'>
-                view profile &rarr;
-              </p>
-            </div>
-          </div>
+          <MiniProfile
+            userName={meetUp.user.username}
+            userId={meetUp.userId}
+            widthAndHeight={"w-[48px] h-[48px]"}
+            text={"view profile →"}
+          />
           <div className='descriptionBox mt-4 space-y-2 bg-[rgb(20,20,20)]'>
             <h1 className='text-3xl font-bold text-gray-300'>{meetUp?.name}</h1>
             <span className='text-xl block text-gray-400'>
               장소: {meetUp.location}
             </span>
             <span className='text-xl block text-gray-400'>
-              {meetUp?.schedule
-                .toString()
-                .split("T")
-                .map((word, index) => (!index ? `${word} ` : word.slice(0, 5)))}
+              {timeFormatter(meetUp.schedule.toString())}
             </span>
             <span className='text-md'>조회수:{meetUp.viewCount}</span>
             <div className='my-6 text-gray-300'>{meetUp.description}</div>
@@ -177,25 +173,14 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
                 className='py-2 px-2 aspect-square rounded-md justify-center items-center text-gray-300 bg-color-gray-200 hover:bg-orange-300 group"'
                 onClick={onLikeClick}
               >
-                <svg
+                <HeartIcon
                   className={cls(
                     "h-6 w-6",
                     isLiked
                       ? "fill-red-500  group-hover:fill-gray-400"
                       : "fill-gray-400 group-hover:fill-red-500"
                   )}
-                  xmlns='http://www.w3.org/2000/svg'
-                  viewBox='0 0 24 24'
-                  stroke='currentColor'
-                  aria-hidden='true'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth='2'
-                    d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
-                  />
-                </svg>
+                />
               </button>
             </div>
             <div className='bg-[rgb(20,20,20)] p-2 h-10 flex justify-start items-center'>
@@ -236,7 +221,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
                   postId={meetUp.id.toString()}
                   likes={likes?.length}
                   owner={ownerId === userId}
-                  writtenAt={createdAt}
+                  writtenAt={timeFormatter(createdAt.toString())}
                   userId={String(userId)}
                   avatar={avatar}
                   text={text}
@@ -349,84 +334,36 @@ export const getServerSideProps: GetServerSideProps = withSessionSSR(
     if (!(params?.id && req.session.user)) {
       return { props: {} };
     }
-    const pageId = params.id.toString();
+    const id = +params.id.toString();
 
     await client.meetUp.update({
       where: {
-        id: +pageId,
+        id,
       },
       data: {
         viewCount: { increment: 1 },
       },
     });
-    const meetUp = await client.meetUp.findUnique({
-      where: {
-        id: +pageId,
-      },
-      include: {
-        user: {
-          select: {
-            username: true,
-          },
-        },
-        likes: {
-          select: {
-            userId: true,
-            user: {
-              select: {
-                username: true,
-              },
-            },
-          },
-        },
-        joins: {
-          select: {
-            userId: true,
-            user: {
-              select: {
-                username: true,
-              },
-            },
-          },
-        },
-        comments: {
-          select: {
-            id: true,
-            createdAt: true,
-            text: true,
-            user: {
-              select: {
-                id: true,
-                avatar: true,
-                username: true,
-              },
-            },
-            likes: {
-              select: {
-                id: true,
-                userId: true,
-              },
-            },
-            parent: true,
-            parentId: true,
-            comments: {
-              include: { user: true, comments: true, likes: true },
-            },
-          },
-        },
-      },
-    });
+
     const { user } = req.session;
-    console.log(user);
-    const isLikedInit = meetUp?.likes.some((like) => like.userId === user?.id);
-    const isJoinedInit = meetUp?.joins.some((join) => join.userId === user?.id);
+    const userId = +user?.id;
+    const meetUpData = await client.meetUp.getMeetUpDetail(id, userId);
+    if (!meetUpData) {
+      return {
+        redirect: {
+          permanent: false,
+          destination: ROUTE_PATH.INDEX,
+        },
+      };
+    }
+    const { meetUp, isLiked, isJoined } = meetUpData;
     return {
       props: {
-        meetUpProp: JSON.parse(JSON.stringify(meetUp)),
-        pageId,
-        isLikedInit,
-        isJoinedInit,
-        userId: user?.id,
+        meetUpInit: JSON.parse(JSON.stringify(meetUp)),
+        pageId: id,
+        isLikedInit: isLiked,
+        isJoinedInit: isJoined,
+        userId,
       },
     };
   }

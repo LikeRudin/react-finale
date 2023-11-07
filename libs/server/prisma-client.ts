@@ -40,6 +40,93 @@ const createClient = () => {
           return null;
         },
       },
+      meetUp: {
+        async getMeetUpDetail(id: number, userId: number) {
+          const meetUp = await client.meetUp.findUnique({
+            where: {
+              id,
+            },
+            include: {
+              user: {
+                select: {
+                  username: true,
+                },
+              },
+              likes: {
+                select: {
+                  userId: true,
+                  user: {
+                    select: {
+                      username: true,
+                    },
+                  },
+                },
+              },
+              joins: {
+                select: {
+                  userId: true,
+                  user: {
+                    select: {
+                      username: true,
+                    },
+                  },
+                },
+              },
+              comments: {
+                select: {
+                  id: true,
+                  createdAt: true,
+                  text: true,
+                  user: {
+                    select: {
+                      id: true,
+                      avatar: true,
+                      username: true,
+                    },
+                  },
+                  likes: {
+                    select: {
+                      id: true,
+                      userId: true,
+                    },
+                  },
+                  parent: true,
+                  parentId: true,
+                  comments: {
+                    select: {
+                      id: true,
+                      createdAt: true,
+                      text: true,
+                      parent: true,
+                      parentId: true,
+                      user: {
+                        select: {
+                          id: true,
+                          avatar: true,
+                          username: true,
+                        },
+                      },
+                      likes: {
+                        select: {
+                          id: true,
+                          userId: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          });
+          if (!meetUp) {
+            return null;
+          }
+          const isLiked = meetUp.likes.some((like) => like.userId === userId);
+          const isJoined = meetUp.joins.some((join) => join.userId === userId);
+
+          return { meetUp, isLiked, isJoined };
+        },
+      },
       tweet: {
         async getTweetDetail(id: number, userId: number) {
           const tweet = await client.tweet.findUnique({

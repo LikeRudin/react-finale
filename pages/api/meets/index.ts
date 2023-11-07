@@ -2,6 +2,7 @@ import { structuredNextApiHandler } from "@/libs/server/request-validator";
 import { withSessionApiRoute } from "@/libs/server/session";
 import validateAndHandleRequest from "@/libs/server/request-validator";
 import client from "@/libs/server/prisma-client";
+import { HTTPMESSAGE } from "@/libs/util/apiroutes";
 
 interface MeetUpDatas {
   name: string;
@@ -16,7 +17,12 @@ const handler: structuredNextApiHandler = async (req, res) => {
     req.body as MeetUpDatas;
   const user = req.session.user;
   if (!user) {
-    return res.status(404).json({ ok: false, error: "로그인을 먼저 해주세요" });
+    return res
+      .status(404)
+      .json({
+        ok: false,
+        error: HTTPMESSAGE.STATUS404("로그인한 사용자가 아닙니다."),
+      });
   }
 
   const newMeetUp = await client.meetUp.create({
@@ -34,7 +40,7 @@ const handler: structuredNextApiHandler = async (req, res) => {
   if (!newMeetUp) {
     return res
       .status(500)
-      .json({ ok: false, error: "알수없는 오류로 업로드에 실패했습니다." });
+      .json({ ok: false, error: HTTPMESSAGE.STATUS500(" 게시물 Create 실패") });
   }
 
   const newActivity = await client.activityLog.create({
@@ -53,7 +59,7 @@ const handler: structuredNextApiHandler = async (req, res) => {
     });
     return res
       .status(500)
-      .json({ ok: false, error: "알수없는 오류로 업로드에 실패했습니다." });
+      .json({ ok: false, error: HTTPMESSAGE.STATUS500(" 활동로그 생성 실패") });
   }
 
   return res.status(202).json({ ok: true, data: `${newMeetUp.id}` });

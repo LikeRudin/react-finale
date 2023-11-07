@@ -11,9 +11,7 @@ const handler: structuredNextApiHandler = async (req, res) => {
   } = req;
 
   if (!(meetUpId && commentid && user)) {
-    return res
-      .status(404)
-      .json({ ok: false, error: HTTPMESSAGE.STATUS404 + "댓글" });
+    return res.status(404).json({ ok: false, error: HTTPMESSAGE.STATUS404 });
   }
   switch (req.method) {
     case "DELETE":

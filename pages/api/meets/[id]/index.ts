@@ -11,7 +11,6 @@ const handler: structuredNextApiHandler = async (req, res) => {
   if (!id) {
     return res.status(404).json({ ok: false, error: "잘못된 접근입니다." });
   }
-
   const user = req.session.user;
   if (!user) {
     return res.status(404).json({ ok: false, error: "로그인을 먼저 해주세요" });
@@ -19,66 +18,16 @@ const handler: structuredNextApiHandler = async (req, res) => {
 
   switch (req.method) {
     case "GET":
-      const meetUp = await client.meetUp.findUnique({
-        where: {
-          id: +id.toString(),
-        },
-        include: {
-          user: {
-            select: {
-              username: true,
-            },
-          },
-          likes: {
-            select: {
-              userId: true,
-              user: {
-                select: {
-                  username: true,
-                },
-              },
-            },
-          },
-          joins: {
-            select: {
-              userId: true,
-              user: {
-                select: {
-                  username: true,
-                },
-              },
-            },
-          },
-          comments: {
-            select: {
-              id: true,
-              createdAt: true,
-              text: true,
-              user: {
-                select: {
-                  id: true,
-                  avatar: true,
-                  username: true,
-                },
-              },
-              parent: true,
-              parentId: true,
-              likes: true,
-              comments: {
-                include: { user: true, likes: true, comments: true },
-              },
-            },
-          },
-        },
-      });
-      if (!meetUp) {
+      const meetUpData = await client.meetUp.getMeetUpDetail(
+        +id.toString(),
+        user.id
+      );
+      if (!meetUpData) {
         return res
           .status(404)
           .json({ ok: false, error: "MeetUp이 존재하지 않습니다." });
       }
-      const isLiked = meetUp.likes.some((item) => item.userId === user.id);
-
-      const isJoined = meetUp.joins.some((item) => item.userId === user.id);
+      const { meetUp, isLiked, isJoined } = meetUpData;
       return res
         .status(202)
         .json({ ok: true, data: { meetUp, isLiked, isJoined } });
