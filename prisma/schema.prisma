@@ -38,10 +38,10 @@ model User {
   reviewComment ReviewComment[]
   reviewCommentLikes ReviewCommentLike[]
 
-  Tweets Tweet[]
-  TweetLikes TweetLike[]
-  TweetComments TweetComment[]
-  TweetCommentLikes TweetCommentLike[]
+  tweets Tweet[]
+  tweetLikes TweetLike[]
+  tweetComments TweetComment[]
+  tweetCommentLikes TweetCommentLike[]
 
   streams Stream[]
   streamMessages StreamMessage[]
@@ -251,7 +251,6 @@ model Tweet {
   showLocation Boolean
   viewCount Int @default(0)
 
-
   description String @db.MediumText
   category TweetCategory
   images TweetImage[]
@@ -269,10 +268,10 @@ model TweetImage{
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Tweet Tweet @relation(fields: [TweetId], references: [id], onDelete: Cascade)
-  TweetId Int
+  tweet Tweet @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  tweetId Int
 
-  @@index([TweetId])
+  @@index([tweetId])
 
 }
 
@@ -283,11 +282,11 @@ model TweetLike {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  
-  Tweet Tweet @relation(fields: [TweetId], references: [id], onDelete: Cascade)
-  TweetId Int
+  tweet Tweet @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  tweetId Int
 
   @@index([userId])
-  @@index([TweetId])
+  @@index([tweetId])
 }
 
 model TweetComment {
@@ -299,8 +298,8 @@ model TweetComment {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  
-  Tweet Tweet @relation(fields: [TweetId], references: [id], onDelete: Cascade)
-  TweetId Int
+  tweet Tweet @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  tweetId Int
 
   parentId Int? 
   parent TweetComment? @relation("commentToComment", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
@@ -309,7 +308,7 @@ model TweetComment {
   likes TweetCommentLike[]
 
   @@index([parentId])
-  @@index([TweetId])
+  @@index([tweetId])
   @@index([userId])
 }
 
