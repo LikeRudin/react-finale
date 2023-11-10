@@ -17,54 +17,100 @@ const handler: structuredNextApiHandler = async (req, res) => {
     req.body as MeetUpDatas;
   const user = req.session.user;
   if (!user) {
-    return res
-      .status(404)
-      .json({
-        ok: false,
-        error: HTTPMESSAGE.STATUS404("로그인한 사용자가 아닙니다."),
-      });
-  }
-
-  const newMeetUp = await client.meetUp.create({
-    data: {
-      name,
-      schedule,
-      location,
-      description,
-      user: {
-        connect: { id: user.id },
-      },
-    },
-  });
-
-  if (!newMeetUp) {
-    return res
-      .status(500)
-      .json({ ok: false, error: HTTPMESSAGE.STATUS500(" 게시물 Create 실패") });
-  }
-
-  const newActivity = await client.activityLog.create({
-    data: {
-      type: "MeetUp",
-      placeId: newMeetUp.id,
-      user: {
-        connect: { id: user.id },
-      },
-    },
-  });
-
-  if (!newActivity) {
-    await client.meetUp.delete({
-      where: { id: newMeetUp.id },
+    return res.status(404).json({
+      ok: false,
+      error: HTTPMESSAGE.STATUS404("로그인한 사용자가 아닙니다."),
     });
-    return res
-      .status(500)
-      .json({ ok: false, error: HTTPMESSAGE.STATUS500(" 활동로그 생성 실패") });
   }
 
-  return res.status(202).json({ ok: true, data: `${newMeetUp.id}` });
-};
+  switch (req.method) {
+    case "GET":
+      const {
+        query: { page, pageSize },
+      } = req;
 
+      const validPage = page ? +page.toString() : 0;
+      const validPageSize = pageSize ? +pageSize.toString() : 10;
+
+      const meetUps = await client.meetUp.findMany({
+        take: validPageSize,
+        skip: (validPage - 1) * validPageSize,
+        select: {
+          id: true,
+          name: true,
+          createdAt: true,
+          schedule: true,
+          isOpened: true,
+          location: true,
+          user: {
+            select: { username: true, avatar: true, id: true },
+          },
+          comments: {
+            select: {
+              id: true,
+            },
+          },
+          likes: {
+            select: {
+              id: true,
+            },
+          },
+          joins: {
+            select: {
+              id: true,
+            },
+          },
+        },
+
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+      if (!meetUps) {
+        return res.status(500).json({
+          ok: false,
+          error: HTTPMESSAGE.STATUS500("meetUpLoading에 실패했습니다."),
+        });
+      }
+      return res.status(200).json({ ok: true, data: meetUps });
+
+    case "POST":
+      const { meetUp, activityLog } = await client.$transaction(
+        async (client) => {
+          const meetUp = await client.meetUp.create({
+            data: {
+              name,
+              schedule,
+              location,
+              description,
+              user: {
+                connect: { id: user.id },
+              },
+            },
+          });
+
+          const activityLog = await client.activityLog.create({
+            data: {
+              type: "MeetUp",
+              placeId: meetUp.id,
+              user: {
+                connect: { id: user.id },
+              },
+            },
+          });
+          return { meetUp, activityLog };
+        }
+      );
+
+      if (!(meetUp && activityLog)) {
+        return res.status(500).json({
+          ok: false,
+          error: HTTPMESSAGE.STATUS500("meetUp 작성 실패"),
+        });
+      }
+      return res.status(202).json({ ok: true, data: `${meetUp.id}` });
+  }
+};
 export default withSessionApiRoute(
-  validateAndHandleRequest({ methods: ["POST"], handler })
+  validateAndHandleRequest({ methods: ["POST", "GET"], handler })
 );
