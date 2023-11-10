@@ -135,7 +135,6 @@ const TweetPost = ({
                   리트윗 {tweets?.length}
                 </span>
               </button>
-
               <button
                 className='flex items-center space-x-2 group'
                 onClick={onLikeClick}
