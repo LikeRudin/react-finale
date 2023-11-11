@@ -10,7 +10,7 @@ const CreatedTime = ({ createdAt, className }: CreatedTimeProps) => (
     className={cls(
       className
         ? className
-        : "px-4 flex items-center justify-between text-gray-300 font-medium text-xs"
+        : "px-2 flex items-center justify-between text-gray-300 font-medium text-xs"
     )}
   >
     <span>{timeFormatter(createdAt.toString().substring(0, 16))}</span>
