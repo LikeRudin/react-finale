@@ -29,6 +29,7 @@ import { useState } from "react";
 import cls from "@/libs/util/cls";
 import { timeFormatter } from "@/libs/util/time-formatter";
 import HeartIcon from "../components/icons/heart";
+import useDetailPage from "@/libs/client/useDetailPage";
 
 type MeetUpComment = {
   id: number;
@@ -62,10 +63,10 @@ interface MeetDetailProps {
   isJoinedInit: boolean;
 }
 
-interface IResponse {
-  status: "ok" | "fail" | "error";
+type MeetUpSWRResponse = {
+  status: "ok" | "error";
   data: { meetUp: MeetUpDetail; isLiked: boolean; isJoined: boolean };
-}
+};
 
 interface ReplyForm {
   reply: string;
@@ -79,20 +80,13 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
   userId,
 }) => {
   const {
-    data: {
-      data: { meetUp, isLiked, isJoined },
-    },
+    data: { meetUp, isLiked, isJoined },
     mutate,
-  } = useSWR<IResponse>(MEETS_API_ROUTE.DETAIL(pageId), {
-    fallbackData: {
-      status: "ok",
-      data: {
-        meetUp: meetUpInit,
-        isLiked: isLikedInit,
-        isJoined: isJoinedInit,
-      },
-    },
-  }) as { data: IResponse } & ReturnType<typeof useSWR>;
+  } = useDetailPage(MEETS_API_ROUTE.DETAIL(pageId), {
+    meetUp: meetUpInit,
+    isLiked: isLikedInit,
+    isJoined: isJoinedInit,
+  }) as MeetUpSWRResponse & ReturnType<typeof useSWR>;
 
   const { trigger: likeTrigger } = useMutation(
     MEETS_API_ROUTE.LIKE(pageId),

@@ -10,13 +10,7 @@ import { useForm } from "react-hook-form";
 import { mutate } from "swr";
 import SubmitButton from "./common/submit-button";
 import TextArea from "./common/textarea";
-import type {
-  TweetComment,
-  TweetCommentLike,
-  User,
-  MeetUpComment,
-  ReviewComment,
-} from "@prisma/client";
+import type { TweetComment, User } from "@prisma/client";
 import { timeFormatter } from "@/libs/util/time-formatter";
 import ThumbUpIcon from "./icons/thumb-up";
 import EditIcon from "./icons/edit";

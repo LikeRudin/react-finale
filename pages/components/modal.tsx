@@ -1,21 +1,24 @@
-// const Overlay = styled(motion.div)`
-//   position: fixed;
-//   top: 0;
-//   left: 0;
-//   width: 100%;
-//   height: 100%;
-//   background-color: rgba(0, 0, 0, 0.6);
-//   z-index: 3;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-// `;
+import type { MouseEvent, ReactNode } from "react";
+import cls from "@/libs/util/cls";
 
-import type { ReactNode } from "react";
-
-const Modal = (children: ReactNode) => {
+const Modal = ({
+  trigger,
+  children,
+  onClickTrigger,
+}: {
+  onClickTrigger: (e: MouseEvent) => void;
+  trigger: boolean;
+  children: ReactNode;
+}) => {
   return (
-    <div className="fixed top-0 left-0 w-screen h-screen bg-[rgba(0, 0, 0, 0.6)] z-3 flex justify-center items-center">
+    <div
+      className={cls(
+        trigger
+          ? "fixed top-0 left-0 h-screen w-screen bg-black/50 z-20 flex justify-center items-center"
+          : "hidden"
+      )}
+      onClick={onClickTrigger}
+    >
       {children}
     </div>
   );

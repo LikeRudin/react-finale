@@ -1,6 +1,5 @@
 import type { NextPage } from "next";
 
-import CircleLinkButton from "../components/common/circle-link-button";
 import Layout from "@/pages/components/common/layout";
 
 import useInfiniteList from "@/libs/client/useInfiniteList";
@@ -32,12 +31,12 @@ const Community: NextPage = () => {
           (tweetList.data as Tweets).map((tweet, index) => {
             return (
               <div
-                className='cursor-pointer relative flex flex-col items-start border-b   hover:bg-emerald-900 group'
+                className='cursor-pointer relative flex flex-col items-start border-b   hover:bg-emerald-900 group/link'
                 key={`tweets${index}`}
                 onClick={(event: React.MouseEvent) => event.preventDefault()}
               >
                 <Link href={`/tweets/${tweet.id}`}>
-                  <ArrowInCircleIcon className='hidden group-hover:block group-hover:absolute top-5 right-4  w-8 h-8 hover:stroke-orange-300' />
+                  <ArrowInCircleIcon className='hidden group-hover/link:block group-hover/link:absolute top-5 right-4  w-8 h-8 hover:stroke-orange-300' />
                 </Link>
                 <TweetPost {...tweet} mutate={() => tweetList.refresh()} />
               </div>

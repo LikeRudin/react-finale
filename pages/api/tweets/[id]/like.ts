@@ -2,62 +2,73 @@ import { structuredNextApiHandler } from "@/libs/server/request-validator";
 import { withSessionApiRoute } from "@/libs/server/session";
 import validateAndHandleRequest from "@/libs/server/request-validator";
 import client from "@/libs/server/prisma-client";
-import { HTTPMESSAGE } from "@/libs/util/apiroutes";
 
 const handler: structuredNextApiHandler = async (req, res) => {
   const {
     query: { id },
     session: { user },
-    body: { reply },
   } = req;
-  if (!(id && user && reply)) {
-    return res.status(404).json({
-      ok: false,
-      error: HTTPMESSAGE.STATUS404("reply를 확인해보세요"),
-    });
+
+  if (!(id && user)) {
+    return res
+      .status(404)
+      .json({ ok: false, error: "잘못된 접근 요청입니다." });
   }
+
   const tweet = await client.tweet.findUnique({
     where: {
       id: +id.toString(),
     },
   });
   if (!tweet) {
-    return res.status(404).json({
-      ok: false,
-      error: HTTPMESSAGE.STATUS404("존재하지 않는 Tweet 입니다."),
+    return res.status(404).json({ ok: false, error: "삭제된 Tweet입니다." });
+  }
+
+  const likeExist = await client.tweetLike.findFirst({
+    where: {
+      tweetId: +id.toString(),
+      userId: user.id,
+    },
+  });
+
+  if (likeExist) {
+    await client.tweetLike.delete({
+      where: {
+        id: likeExist.id,
+      },
     });
+    return res.status(202).json({ ok: true, data: "좋아요를 취소했습니다." });
   }
 
   const transaction = await client.$transaction([
-    client.tweet.update({
-      where: { id: +id.toString() },
+    client.tweetLike.create({
       data: {
-        comments: {
-          create: {
-            text: reply,
-            user: {
-              connect: {
-                id: user.id,
-              },
-            },
+        user: {
+          connect: {
+            id: +user.id,
+          },
+        },
+        tweet: {
+          connect: {
+            id: +id.toString(),
           },
         },
       },
     }),
     client.activityLog.create({
       data: {
-        type: "TweetComment",
-        placeId: +id.toString(),
+        type: "TweetLike",
         user: {
           connect: {
             id: user.id,
           },
         },
+        placeId: +id.toString(),
       },
     }),
     client.notification.create({
       data: {
-        type: "TweetComment",
+        type: "TweetLike",
         senderId: user.id,
         placeId: +id.toString(),
         receiver: {
@@ -66,11 +77,14 @@ const handler: structuredNextApiHandler = async (req, res) => {
       },
     }),
   ]);
+
   if (!transaction) {
-    res.status(500).json({ ok: false, error: "알수없는 오류가 발생했습니다." });
+    return res
+      .status(500)
+      .json({ ok: false, error: "알수없는 오류가 발생했습니다." });
   }
 
-  return res.status(202).json({ ok: true, data: reply });
+  return res.status(202).json({ ok: true, data: "좋아요" });
 };
 
 export default withSessionApiRoute(

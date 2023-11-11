@@ -13,16 +13,16 @@ import BubbleComment from "./icons/bubble-comment";
 import { timeFormatter } from "@/libs/util/time-formatter";
 import useMutation from "@/libs/client/useMutation";
 import { TWEETS_API_ROUTE } from "@/libs/util/apiroutes";
-import { mutate } from "swr";
 import cls from "@/libs/util/cls";
 import ReplyIcon from "./icons/reply-square";
 import React, { useState } from "react";
-import Comment from "./comment";
+
 import ReTweet from "./retweet";
 import ModalComment from "./modal-comment";
 import CategoryTextIcon from "./icons/category-text";
 import CreatedTime from "./icons/created-time";
 import ArrowInCircleIcon from "./icons/arrow-in-circle";
+import Modal from "./modal";
 
 export type TweetCommentData = TweetComment & {
   user: User;
@@ -40,6 +40,11 @@ export type TweetData = Tweet & {
   parentId: number;
   isLiked?: boolean;
 };
+
+type TweetPostProps = TweetData & {
+  mutate: () => void;
+};
+
 const TweetPost = ({
   parentId,
   parent,
@@ -54,30 +59,23 @@ const TweetPost = ({
   id,
   isLiked = false,
   likes,
-}: TweetData) => {
+  mutate,
+}: TweetPostProps) => {
   const [isRetweetModalOpened, setIsRetweetModalOpened] = useState(false);
   const [isCommentModalOpened, setIsCommentModalOpened] = useState(false);
 
-  const toggleRetweetModal = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    setIsRetweetModalOpened((prev) => !prev);
-  };
+  const toggleRetweetModal = () => setIsRetweetModalOpened((prev) => !prev);
 
-  const toggleCommentModal = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    setIsCommentModalOpened((prev) => !prev);
-  };
+  const toggleCommentModal = () => setIsCommentModalOpened((prev) => !prev);
 
   const { trigger: likeTrigger } = useMutation(
     TWEETS_API_ROUTE.LIKE(id.toString()),
     "POST",
-    () => mutate(`/tweets/${id}`)
+    () => mutate()
   );
-  const onLikeClick = (event: React.MouseEvent) => {
-    event.preventDefault();
+  const onLikeClick = () => {
     likeTrigger();
   };
-
   return (
     <div className='w-full mb-2 h-full'>
       <div className='w-full flex flex-col items-start'>
@@ -99,9 +97,6 @@ const TweetPost = ({
             />
             <CategoryTextIcon text={tweetCategoryParser(category)} />
             <CreatedTime createdAt={createdAt} />
-            <Link href={`/tweets/${id}`}>
-              <ArrowInCircleIcon className='w-8 h-8 hover:stroke-orange-300' />
-            </Link>
           </div>
           <div className='w-full flex items-center'>
             <div className='w-full'>
@@ -125,12 +120,7 @@ const TweetPost = ({
                 className='flex items-center space-x-2 group'
                 onClick={toggleRetweetModal}
               >
-                <ReplyIcon
-                  className={cls(
-                    "w-5 h-5 group-hover:stroke-orange-300",
-                    isLiked ? "stroke-orange-500" : "stroke-white"
-                  )}
-                />
+                <ReplyIcon className='w-5 h-5 group-hover:stroke-orange-300 stroke-white' />
                 <span className='group-hover:text-orange-300'>
                   리트윗 {tweets?.length}
                 </span>
@@ -153,37 +143,23 @@ const TweetPost = ({
           </div>
         </div>
       </div>
-      <div
-        className={cls(
-          isRetweetModalOpened
-            ? "fixed top-0 left-0 w-screen h-screen bg-black/50 z-20 flex justify-center items-center"
-            : "hidden"
-        )}
-        onClick={toggleRetweetModal}
-      >
-        <div className='flex flex-col w-2/3 space-y-5 py-1 h-2/3 bg-gray-800 overflow-y-auto'>
+      <Modal onClickTrigger={toggleRetweetModal} trigger={isRetweetModalOpened}>
+        <div className='flex flex-col w-[30rem]  space-y-5 py-10 h-2/3 bg-gray-800 overflow-y-auto'>
           {tweets?.length ? (
             tweets.map((retweet, index) => (
               <ReTweet key={`retweet-${index}`} {...retweet} />
             ))
           ) : (
             <div className='flex space-x-4 items-center justify-center'>
-              <div className='text-md font-medium text-gray-900 break-normal'>
+              <div className='text-md font-medium text-orange-300 break-normal'>
                 리트윗이 없어요.
               </div>
             </div>
           )}
         </div>
-      </div>
-      <div
-        className={cls(
-          isCommentModalOpened
-            ? "fixed top-0 left-0 w-screen h-screen bg-black/50 z-20 flex justify-center items-center"
-            : "hidden"
-        )}
-        onClick={toggleCommentModal}
-      >
-        <div className='flex flex-col w-2/3 space-y-5 py-10 px-2 h-2/3 bg-white overflow-y-auto'>
+      </Modal>
+      <Modal trigger={isCommentModalOpened} onClickTrigger={toggleCommentModal}>
+        <div className='flex flex-col w-[30rem]  space-y-5 py-10 h-2/3 bg-gray-800 overflow-y-auto'>
           {comments?.length ? (
             comments.map((comment, index) => {
               const {
@@ -194,6 +170,7 @@ const TweetPost = ({
               return (
                 !parent && (
                   <ModalComment
+                    key={`comment${index}`}
                     userName={username}
                     writtenAt={timeFormatter(createdAt.toString())}
                     {...comment}
@@ -203,13 +180,13 @@ const TweetPost = ({
             })
           ) : (
             <div className='flex space-x-4 items-center justify-center'>
-              <div className='text-md font-medium text-gray-900 break-normal'>
+              <div className='text-md font-medium text-orange-300 break-normal'>
                 댓글이 없어요.
               </div>
             </div>
           )}
         </div>
-      </div>
+      </Modal>
     </div>
   );
 };

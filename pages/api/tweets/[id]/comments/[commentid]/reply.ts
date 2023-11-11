@@ -6,40 +6,42 @@ import { HTTPMESSAGE } from "@/libs/util/apiroutes";
 
 const handler: structuredNextApiHandler = async (req, res) => {
   const {
-    query: { id },
+    query: { id, commentid },
     session: { user },
-    body: { reply },
+    body: { reply, parentId },
   } = req;
-  if (!(id && user && reply)) {
-    return res.status(404).json({
-      ok: false,
-      error: HTTPMESSAGE.STATUS404("reply를 확인해보세요"),
-    });
+  if (!(id && user && reply && parentId && commentid)) {
+    return res
+      .status(404)
+      .json({ ok: false, error: HTTPMESSAGE.STATUS404("") });
   }
+
   const tweet = await client.tweet.findUnique({
     where: {
       id: +id.toString(),
     },
   });
   if (!tweet) {
-    return res.status(404).json({
-      ok: false,
-      error: HTTPMESSAGE.STATUS404("존재하지 않는 Tweet 입니다."),
-    });
+    return res.status(404).json({ ok: false, error: "삭제된 Tweet입니다." });
   }
 
   const transaction = await client.$transaction([
-    client.tweet.update({
-      where: { id: +id.toString() },
+    client.tweetComment.create({
       data: {
-        comments: {
-          create: {
-            text: reply,
-            user: {
-              connect: {
-                id: user.id,
-              },
-            },
+        text: reply as string,
+        user: {
+          connect: {
+            id: user.id,
+          },
+        },
+        parent: {
+          connect: {
+            id: +parentId.toString(),
+          },
+        },
+        tweet: {
+          connect: {
+            id: +id.toString(),
           },
         },
       },
@@ -58,6 +60,16 @@ const handler: structuredNextApiHandler = async (req, res) => {
     client.notification.create({
       data: {
         type: "TweetComment",
+        senderId: user.id,
+        placeId: +id.toString(),
+        receiver: {
+          connect: { id: tweet.userId },
+        },
+      },
+    }),
+    client.notification.create({
+      data: {
+        type: "TweetCommentReply",
         senderId: user.id,
         placeId: +id.toString(),
         receiver: {

@@ -397,8 +397,10 @@ enum Activity{
   TweetEdit
   TweetLike
   TweetComment
+  TweetCommentDelete
   TweetCommentEdit
   TweetCommentLike
+  TweetCommentReply
   MeetUpJoin
   EditProfile
 }
@@ -431,9 +433,12 @@ enum OthersReaction {
   ReviewCommentLike
   Tweet
   TweetLike
+  TweetComment
+  TweetCommentLike
   Comment
   CommentLike
   MeetUpJoin
+  TweetCommentReply
 }
 
 enum TweetCategory {

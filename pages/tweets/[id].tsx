@@ -25,6 +25,7 @@ import { useState } from "react";
 import { UploadTweet } from "./upload";
 import Comment from "../components/comment";
 import type { CommentType } from "../components/comment";
+import useDetailPage from "@/libs/client/useDetailPage";
 
 type TweetCommentData = CommentType & {
   user: User;
@@ -43,7 +44,7 @@ type TweetData = Tweet & {
 };
 
 interface TweetSWRResponse {
-  status: "ok" | "fail" | "error";
+  status: "ok" | "loading" | "error";
   data: { tweet: TweetData; isLiked: boolean };
 }
 type ReplyForm = {
@@ -65,19 +66,12 @@ const TweetDetail: NextPage<TweetDetailProps> = ({
   pageId,
 }) => {
   const {
-    data: {
-      data: { tweet, isLiked },
-    },
+    data: { tweet, isLiked },
     mutate,
-  } = useSWR(TWEETS_API_ROUTE.DETAIL(pageId.toString()), {
-    fallbackData: {
-      status: "ok",
-      data: {
-        tweet: tweetInit,
-        isLiked: isLikedInit,
-      },
-    },
-  }) as { data: TweetSWRResponse } & ReturnType<typeof useSWR>;
+  } = useDetailPage(TWEETS_API_ROUTE.DETAIL(pageId), {
+    tweet: tweetInit,
+    isLiked: isLikedInit,
+  }) as TweetSWRResponse & ReturnType<typeof useSWR>;
 
   const { register, handleSubmit, setValue } = useForm<ReplyForm>();
   const [submitForm, setSubmitForm] = useState<"Comment" | "Retweet">(

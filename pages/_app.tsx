@@ -7,7 +7,11 @@ export default function App({ Component, pageProps }: AppProps) {
     <SWRConfig
       value={{
         fetcher: (url: string) =>
-          fetch(url)
+          fetch(url, {
+            headers: {
+              method: "GET",
+            },
+          })
             .then((response) => response.json())
             .then((parsed) => {
               const { ok, data, error } = parsed;
@@ -21,7 +25,7 @@ export default function App({ Component, pageProps }: AppProps) {
             }),
       }}
     >
-      <div className='w-full max-w-xl min-w-md mx-auto'>
+      <div className='w-full max-w-[46rem] min-w-md mx-auto'>
         <Component {...pageProps} />
       </div>
     </SWRConfig>

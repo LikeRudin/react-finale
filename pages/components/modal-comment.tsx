@@ -1,22 +1,6 @@
-import Image from "next/image";
-import useMutation from "@/libs/client/useMutation";
-import {
-  MEETS_API_ROUTE,
-  REVIEWS_API_ROUTE,
-  TWEETS_API_ROUTE,
-} from "@/libs/util/apiroutes";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { mutate } from "swr";
-import SubmitButton from "./common/submit-button";
-import TextArea from "./common/textarea";
 import type { TweetComment, TweetCommentLike, User } from "@prisma/client";
 import { timeFormatter } from "@/libs/util/time-formatter";
-import ThumbUpIcon from "./icons/thumb-up";
-import EditIcon from "./icons/edit";
-import DeleteIcon from "./icons/delete";
-import ReplyIcon from "./icons/reply-square";
-import cls from "@/libs/util/cls";
+
 import MiniProfile from "./mini-profile";
 import ArrowReplyIcon from "./icons/arrow-reply";
 
@@ -31,9 +15,9 @@ interface CommentProps {
   avatar?: string;
   text: string;
   writtenAt: string;
-  id: string;
-  userId: string;
-  parentId?: number;
+  id: number;
+  userId: number;
+  parentId?: number | null;
   comments?: CommentType[];
 }
 
@@ -83,7 +67,7 @@ const ModalComment = ({
               } = comment;
               return (
                 parentId &&
-                parentId.toString() === id && (
+                parentId === id && (
                   <ModalComment
                     comments={comments as []}
                     key={index}
@@ -93,7 +77,7 @@ const ModalComment = ({
                     text={text}
                     userName={username}
                     parentId={parentId}
-                    id={replyId.toString()}
+                    id={replyId}
                   />
                 )
               );

@@ -58,7 +58,7 @@ export const UploadTweet = ({ parentId }: { parentId?: number }) => {
       {parentId ? (
         <form
           onSubmit={handleSubmit(onValid)}
-          className='px-4 bg-inherit py-12 w-full'
+          className='px-4 bg-inherit py-12 w-full h-screen'
         >
           <Input
             name='imagepath'
