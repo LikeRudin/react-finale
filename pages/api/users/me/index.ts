@@ -15,18 +15,16 @@ const handler: structuredNextApiHandler = async (req, res) => {
     return res.status(404).json({ ok: false, error: "먼저 로그인 해 주세요" });
   }
   switch (method) {
-    case "GET": {
-      const profile = await client.user.findUnique({
-        where: { id: user.id },
-      });
+    case "GET":
+      const profile = await client.user.getEditProfile(+user.id.toString());
       if (!profile) {
         return res
           .status(500)
           .json({ ok: false, error: "유저 정보를 찾을 수 없습니다." });
       }
-      return res.status(202).json({ ok: true, data: profile });
-    }
-    case "POST": {
+      return res.status(200).json({ ok: true, data: profile });
+
+    case "POST":
       const { email, phone, introduction, password, imagePath } = req.body;
       const userData = await client.user.login({
         password,
@@ -37,7 +35,6 @@ const handler: structuredNextApiHandler = async (req, res) => {
           .status(404)
           .json({ ok: false, error: "비밀번호가 올바르지 않습니다." });
       }
-
       if (email !== userData.email || phone !== userData.phone) {
         const exist = await client.user.findMany({
           where: {
@@ -60,7 +57,6 @@ const handler: structuredNextApiHandler = async (req, res) => {
             .json({ ok: false, error: `이미 존재하는 email/phone입니다` });
         }
       }
-
       const update = await client.user.update({
         where: { id: userData.id },
         data: {
@@ -82,7 +78,6 @@ const handler: structuredNextApiHandler = async (req, res) => {
           .json({ ok: false, error: HTTPMESSAGE.STATUS500 });
       }
       return res.status(202).json({ ok: true, data: update });
-    }
   }
 };
 

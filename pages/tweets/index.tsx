@@ -13,6 +13,8 @@ import TweetPost from "../components/tweet-post";
 import BottomPadder from "../components/common/bottom-padder";
 import LoadingCover from "../components/common/loading-cover";
 import TweetUploadForm from "../components/tweet-upload-form";
+import Link from "next/link";
+import ArrowInCircleIcon from "../components/icons/arrow-in-circle";
 
 type Tweets = TweetData[];
 
@@ -30,14 +32,14 @@ const Community: NextPage = () => {
           (tweetList.data as Tweets).map((tweet, index) => {
             return (
               <div
-                className='cursor-pointer flex flex-col items-start border-b   hover:bg-emerald-900'
+                className='cursor-pointer relative flex flex-col items-start border-b   hover:bg-emerald-900 group'
                 key={`tweets${index}`}
                 onClick={(event: React.MouseEvent) => event.preventDefault()}
               >
-                {
-                  //href={`/tweets/${tweet.id}`}
-                }
-                <TweetPost {...tweet} />
+                <Link href={`/tweets/${tweet.id}`}>
+                  <ArrowInCircleIcon className='hidden group-hover:block group-hover:absolute top-5 right-4  w-8 h-8 hover:stroke-orange-300' />
+                </Link>
+                <TweetPost {...tweet} mutate={() => tweetList.refresh()} />
               </div>
             );
           })

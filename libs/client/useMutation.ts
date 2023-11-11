@@ -1,6 +1,5 @@
 import useSWRMutation from "swr/mutation";
 import { HTTPMethod } from "../server/request-validator";
-import { callbackify } from "util";
 
 type UseMutationState<T> =
   | { status: "ok"; data: T }
@@ -8,7 +7,7 @@ type UseMutationState<T> =
   | { status: "error"; error: object | string }
   | { status: "loading" };
 
-type useMetationResult<T> = {
+type useMutationResult<T> = {
   trigger: (data?: any) => void;
   state: UseMutationState<T>;
 };
@@ -17,7 +16,7 @@ const useMutation = <T = any>(
   url: string,
   type: HTTPMethod,
   callback?: () => void
-): useMetationResult<T> => {
+): useMutationResult<T> => {
   const { trigger, data, error } = useSWRMutation(
     url,
     async (url, { arg }) => {

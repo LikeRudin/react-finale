@@ -1,15 +1,25 @@
-import Layout from "../components/layout";
-import SubmitButton from "../components/submit-button";
-import TextArea from "../components/textarea";
-import Input from "../components/input";
-import useUser from "@/libs/client/useUser";
+import Layout from "../components/common/layout";
+import SubmitButton from "../components/common/submit-button";
+import TextArea from "../components/common/textarea";
+import Input from "../components/common/input";
+
+import type useSWR from "swr";
+import useDetailPage from "@/libs/client/useDetailPage";
 import useMutation from "@/libs/client/useMutation";
 import type { User } from "@prisma/client";
-import Router from "next/router";
+
+import client from "@/libs/server/prisma-client";
 
 import { useForm } from "react-hook-form";
-import { APIROUTE } from "@/libs/util/apiroutes";
-import { useEffect } from "react";
+import { PROFILE_API_ROUTE } from "@/libs/util/apiroutes";
+
+import type {
+  GetServerSideProps,
+  GetServerSidePropsContext,
+  NextPage,
+} from "next";
+import { withSessionSSR } from "@/libs/server/session";
+import Router from "next/router";
 
 interface EditForm {
   email: string;
@@ -19,36 +29,48 @@ interface EditForm {
   password: string;
 }
 
-const Edit = () => {
+type UseSWREditProfileResponse = {
+  status: "ok" | "loading" | "error";
+  data: { profile: User };
+};
+
+type EditPageProps = {
+  profileInit: User;
+};
+
+const Edit: NextPage<EditPageProps> = ({ profileInit }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
   } = useForm<EditForm>();
-  const user = useUser();
-  const { trigger, state } = useMutation(APIROUTE.ANY_USE_USER(""), "POST");
+
+  const {
+    data: { profile },
+  } = useDetailPage(PROFILE_API_ROUTE.EDIT, {
+    profile: profileInit,
+  }) as UseSWREditProfileResponse & ReturnType<typeof useSWR>;
+  const { trigger, state } = useMutation(PROFILE_API_ROUTE.EDIT, "POST");
   const onValid = async (submitData: EditForm) => {
     await trigger(submitData);
-    if (state.status === "ok" && user.status === "ok") {
+    if (state.status === "ok") {
       Router.replace("/profile");
     }
   };
 
   return (
-    <Layout title='프로필 편집' seoTitle='edit' hasBack hasBottomBar>
-      {user.status === "ok" && (
+    <Layout title='프로필 편집' seoTitle='edit' hasTopBar hasBack>
+      <div className='flex justify-center w-full'>
         <form
-          className='px-4 space-y-2 text-gray-300'
+          className='w-[80%] px-4 space-y-3 text-gray-300 '
           onSubmit={handleSubmit(onValid)}
         >
-          <div className='profile flex items-center cursor-pointer py-4 space-x-4 border-t border-b'>
+          <div className='profile flex items-center cursor-pointer py-4 space-x-4 border-b'>
             <div className='rounded-full w-[52px] h-[52px] bg-orange-500' />
             <div className='flex-col space-y-1'>
-              <p className='text-sm font-medium'>
-                {(user.userData as User).username}
-              </p>
-              <label>
+              <p className='text-sm font-medium'>{profile?.username}</p>
+              <label className='cursor-pointer'>
                 <input
                   type='file'
                   className='hidden'
@@ -70,7 +92,7 @@ const Edit = () => {
             placeholder='Enter email address'
             type='email'
             setValue={setValue}
-            value={(user.userData as User).email as string}
+            value={profile?.email as string}
           />
           {errors?.email && (
             <p className='text-sm text-red-500'>{errors.email.message}</p>
@@ -88,49 +110,79 @@ const Edit = () => {
             placeholder='Enter phone number including only numbers'
             type='text'
             setValue={setValue}
-            value={(user.userData as User).phone as string}
+            value={profile?.phone as string}
           />
           {errors?.phone && (
             <p className='text-sm text-red-500'>{errors.phone.message}</p>
           )}
-
-          <TextArea
-            register={register("introduction")}
-            label='Introduction'
-            name='Introduction'
-            required
-            setValue={setValue}
-            placeholder='tell about you'
-            value={(user.userData as User).introduction as string}
-          />
-
           <div>
-            <Input
-              label='Password'
-              register={register("password", {
-                required: "비밀번호를 입력해주세요",
-              })}
-              name='password'
-              required={true}
-              placeholder='Enter your password'
-              type='password'
+            <TextArea
+              register={register("introduction")}
+              label='Introduction'
+              name='Introduction'
+              required
               setValue={setValue}
-              value=''
+              placeholder='tell about you'
+              value={profile?.introduction as string}
             />
-            {errors?.password && (
-              <p className='text-sm text-red-500'>{errors.password.message}</p>
-            )}
-            {state.status === "fail" && (
-              <p className='text-sm text-red-500'>
-                {JSON.stringify(state.error)}
-              </p>
-            )}
           </div>
-          <SubmitButton text='Edit profile' />
+          <Input
+            label='Password'
+            register={register("password", {
+              required: "비밀번호를 입력해주세요",
+            })}
+            name='password'
+            required={true}
+            placeholder='Enter your password'
+            type='password'
+            setValue={setValue}
+            value=''
+          />
+          {errors?.password && (
+            <p className='text-sm text-red-500'>{errors.password.message}</p>
+          )}
+          {state.status === "fail" && (
+            <p className='text-sm text-red-500'>
+              {JSON.stringify(state.error)}
+            </p>
+          )}
+          <div className='mt-5'>
+            <SubmitButton text='Edit profile' />
+          </div>
         </form>
-      )}
+      </div>
     </Layout>
   );
 };
 
 export default Edit;
+
+export const getServerSideProps: GetServerSideProps = withSessionSSR(
+  async ({ req }: GetServerSidePropsContext) => {
+    const { user } = req.session;
+    if (!user) {
+      return {
+        redirect: {
+          permanent: false,
+          destination: "/enter",
+        },
+      };
+    }
+    const id = +user.id.toString();
+
+    const result = await client.user.getEditProfile(id);
+    if (!result) {
+      return {
+        redirect: {
+          permanent: false,
+          destination: "/",
+        },
+      };
+    }
+    return {
+      props: {
+        profileInit: JSON.parse(JSON.stringify(result)),
+      },
+    };
+  }
+);

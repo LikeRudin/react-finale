@@ -39,6 +39,38 @@ const createClient = () => {
           }
           return null;
         },
+        async getMyProfile(id: number) {
+          const profile = await client.user.findUnique({
+            where: { id },
+            include: {
+              activityLogs: { take: 10, orderBy: { createdAt: "desc" } },
+              notifications: { take: 10, orderBy: { createdAt: "desc" } },
+            },
+          });
+          if (!profile) {
+            return null;
+          }
+          return profile;
+        },
+        async getEditProfile(id: number) {
+          const profile = await client.user.findUnique({
+            where: { id },
+          });
+          if (!profile) {
+            return null;
+          }
+          return profile;
+        },
+        async getOtherProfile(id: number) {
+          const profile = await client.user.findUnique({
+            where: { id },
+            include: { tweets: true, meetUps: true },
+          });
+          if (!profile) {
+            return null;
+          }
+          return profile;
+        },
       },
       meetUp: {
         async getMeetUpDetail(id: number, userId: number) {
@@ -47,36 +79,10 @@ const createClient = () => {
               id,
             },
             include: {
-              user: {
-                select: {
-                  username: true,
-                },
-              },
-              likes: {
-                select: {
-                  userId: true,
-                  user: {
-                    select: {
-                      username: true,
-                    },
-                  },
-                },
-              },
-              joins: {
-                select: {
-                  userId: true,
-                  user: {
-                    select: {
-                      username: true,
-                    },
-                  },
-                },
-              },
+              user: true,
               comments: {
-                select: {
-                  id: true,
-                  createdAt: true,
-                  text: true,
+                include: {
+                  parent: true,
                   user: {
                     select: {
                       id: true,
@@ -90,15 +96,8 @@ const createClient = () => {
                       userId: true,
                     },
                   },
-                  parent: true,
-                  parentId: true,
                   comments: {
-                    select: {
-                      id: true,
-                      createdAt: true,
-                      text: true,
-                      parent: true,
-                      parentId: true,
+                    include: {
                       user: {
                         select: {
                           id: true,
@@ -116,11 +115,22 @@ const createClient = () => {
                   },
                 },
               },
+              likes: {
+                include: {
+                  user: { select: { id: true, username: true } },
+                },
+              },
+              joins: {
+                include: {
+                  user: { select: { id: true, username: true } },
+                },
+              },
             },
           });
           if (!meetUp) {
             return null;
           }
+          console.log(meetUp.comments);
           const isLiked = meetUp.likes.some((like) => like.userId === userId);
           const isJoined = meetUp.joins.some((join) => join.userId === userId);
 
@@ -131,30 +141,33 @@ const createClient = () => {
         async getTweetDetail(id: number, userId: number) {
           const tweet = await client.tweet.findUnique({
             where: {
-              id: +id.toString(),
+              id,
             },
             include: {
               user: {
                 select: {
+                  id: true,
                   username: true,
+                  avatar: true,
                 },
               },
               likes: {
+                include: {
+                  user: { select: { id: true, username: true } },
+                },
+              },
+              parent: {
                 select: {
-                  userId: true,
+                  id: true,
+                  name: true,
                   user: {
-                    select: {
-                      username: true,
-                    },
+                    select: { username: true },
                   },
                 },
               },
-              tweets: true,
               comments: {
-                select: {
-                  id: true,
-                  createdAt: true,
-                  text: true,
+                include: {
+                  parent: true,
                   user: {
                     select: {
                       id: true,
@@ -162,11 +175,28 @@ const createClient = () => {
                       username: true,
                     },
                   },
-                  parent: true,
-                  parentId: true,
-                  likes: true,
+                  likes: {
+                    select: {
+                      id: true,
+                      userId: true,
+                    },
+                  },
                   comments: {
-                    include: { user: true, likes: true, comments: true },
+                    include: {
+                      user: {
+                        select: {
+                          id: true,
+                          avatar: true,
+                          username: true,
+                        },
+                      },
+                      likes: {
+                        select: {
+                          id: true,
+                          userId: true,
+                        },
+                      },
+                    },
                   },
                 },
               },
