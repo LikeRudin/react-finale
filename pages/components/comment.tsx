@@ -10,7 +10,13 @@ import { useForm } from "react-hook-form";
 import { mutate } from "swr";
 import SubmitButton from "./common/submit-button";
 import TextArea from "./common/textarea";
-import type { TweetComment, TweetCommentLike, User } from "@prisma/client";
+import type {
+  TweetComment,
+  TweetCommentLike,
+  User,
+  MeetUpComment,
+  ReviewComment,
+} from "@prisma/client";
 import { timeFormatter } from "@/libs/util/time-formatter";
 import ThumbUpIcon from "./icons/thumb-up";
 import EditIcon from "./icons/edit";
@@ -20,10 +26,19 @@ import cls from "@/libs/util/cls";
 import MiniProfile from "./mini-profile";
 import ArrowReplyIcon from "./icons/arrow-reply";
 
-type CommentType = TweetComment & {
+type LikesType = {
+  id: number;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: number;
+  commentId: number;
+};
+
+export type CommentType = TweetComment & {
   user: User;
-  comments: TweetComment[];
-  likes: TweetCommentLike[];
+  comments: [] | undefined;
+  likes: LikesType[] | undefined;
+  parent: CommentType;
 };
 
 interface CommentProps {
@@ -31,10 +46,10 @@ interface CommentProps {
   avatar?: string;
   text: string;
   writtenAt: string;
-  id: string;
-  userId: string;
-  owner: boolean;
-  postId: string;
+  id: number;
+  userId: number;
+  isOwner: boolean;
+  postId: number;
   parentId?: number;
   comments?: CommentType[];
   likes?: number;
@@ -57,7 +72,7 @@ const Comment = ({
   avatar,
   text,
   writtenAt,
-  owner = true,
+  isOwner = false,
   comments = [],
   parentId = 0,
   likes = 0,
@@ -142,7 +157,7 @@ const Comment = ({
               />
             </div>
             <div className='w-[50%] text-md font-medium text-gray-300 items-center flex space-x-2 p-1'>
-              {owner && (
+              {isOwner && (
                 <>
                   <button onClick={onEditClick}>
                     <EditIcon
@@ -215,11 +230,11 @@ const Comment = ({
               } = comment;
               return (
                 parentId &&
-                parentId.toString() === id && (
+                parentId === id && (
                   <Comment
                     comments={comments as []}
                     key={index}
-                    owner={String(ownerId) === userId}
+                    isOwner={ownerId === userId}
                     writtenAt={timeFormatter(createdAt.toString())}
                     userId={userId}
                     avatar={avatar as string}
@@ -228,7 +243,7 @@ const Comment = ({
                     parentId={parentId}
                     likes={likes?.length}
                     postId={postId}
-                    id={replyId.toString()}
+                    id={replyId}
                     kind={kind}
                   />
                 )

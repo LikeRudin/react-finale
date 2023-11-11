@@ -5,12 +5,14 @@ import Layout from "@/pages/components/common/layout";
 
 import useInfiniteList from "@/libs/client/useInfiniteList";
 import { TWEETS_API_ROUTE } from "@/libs/util/apiroutes";
-import TweetPost from "../components/tweet-post";
 
 import type { TweetData } from "../components/tweet-post";
 import React from "react";
+
+import TweetPost from "../components/tweet-post";
 import BottomPadder from "../components/common/bottom-padder";
 import LoadingCover from "../components/common/loading-cover";
+import TweetUploadForm from "../components/tweet-upload-form";
 
 type Tweets = TweetData[];
 
@@ -22,10 +24,10 @@ const Community: NextPage = () => {
 
   return (
     <Layout title='동네생활' hasTopBar seoTitle='게시판' hasBottomBar>
-      <div className='w-full max-h-screen max-w-xl bg-inherit flex flex-col justify-start space-y-1 overflow-y-auto'>
+      <div className='w-full max-h-screen max-w-xl bg-inherit flex flex-col justify-start overflow-y-auto'>
+        <TweetUploadForm mutate={() => tweetList.refresh()} />
         {tweetList.status !== "loading" && tweetList.status !== "error-init" ? (
           (tweetList.data as Tweets).map((tweet, index) => {
-            console.log(tweet);
             return (
               <div
                 className='cursor-pointer flex flex-col items-start border-b   hover:bg-emerald-900'
@@ -55,7 +57,6 @@ const Community: NextPage = () => {
       </div>
 
       <BottomPadder />
-      <CircleLinkButton tooltip='New Tweet' linkAddress='/tweets/upload' />
     </Layout>
   );
 };

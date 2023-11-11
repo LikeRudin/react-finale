@@ -1,13 +1,13 @@
 import type { NextPage } from "next";
-import Input from "../components/input";
+import Input from "../components/common/input";
 import { useForm } from "react-hook-form";
 import useMutation from "@/libs/client/useMutation";
 import { MEETS_API_ROUTE } from "@/libs/util/apiroutes";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import TextArea from "../components/textarea";
-import SubmitButton from "../components/submit-button";
-import Layout from "../components/layout";
+import TextArea from "../components/common/textarea";
+import SubmitButton from "../components/common/submit-button";
+import Layout from "../components/common/layout";
 
 interface uploadMeetForm {
   name: string;
@@ -46,8 +46,17 @@ const Upload: NextPage = () => {
   });
 
   return (
-    <Layout title='MeetUp 모집' hasTopBar seoTitle='MeetUp 모집' hasBack>
-      <form onSubmit={handleSubmit(onValid)} className='px-4 bg-inherit py-12'>
+    <Layout
+      title='MeetUp 모집'
+      hasTopBar
+      seoTitle='MeetUp 모집'
+      hasBack
+      hasBottomBar
+    >
+      <form
+        onSubmit={handleSubmit(onValid)}
+        className='w-full max-w-xl max-h-screen overflow-y-auto bg-inherit flex flex-col justify-start'
+      >
         <label className='w-full h-48  flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-600 hover:text-orange-600 cursor-pointer'>
           <svg
             className='h-12 w-12'

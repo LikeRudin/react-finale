@@ -4,15 +4,14 @@ import type {
   GetServerSidePropsContext,
 } from "next";
 import { withSessionSSR } from "@/libs/server/session";
-import { useRouter } from "next/router";
 
 import useSWR from "swr";
 
 import { useForm } from "react-hook-form";
 
-import TextArea from "../components/textarea";
-import Layout from "../components/layout";
-import SubmitButton from "../components/submit-button";
+import TextArea from "../components/common/textarea";
+import Layout from "../components/common/layout";
+import SubmitButton from "../components/common/submit-button";
 import Comment from "../components/comment";
 import MiniProfile from "../components/mini-profile";
 import client from "@/libs/server/prisma-client";
@@ -35,6 +34,7 @@ type MeetUpComment = {
   id: number;
   createdAt: string;
   text: string;
+  userId: number;
   user: {
     username: string;
     id: number;
@@ -94,10 +94,8 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
     },
   }) as { data: IResponse } & ReturnType<typeof useSWR>;
 
-  const router = useRouter();
-
   const { trigger: likeTrigger } = useMutation(
-    MEETS_API_ROUTE.LIKE(String(router.query.id)),
+    MEETS_API_ROUTE.LIKE(pageId),
     "POST",
     mutate
   );
@@ -107,7 +105,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
   };
 
   const { trigger: joinTrigger } = useMutation(
-    MEETS_API_ROUTE.JOIN(String(router.query.id)),
+    MEETS_API_ROUTE.JOIN(pageId),
     "POST",
     mutate
   );
@@ -119,7 +117,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
   const { register, handleSubmit, setValue } = useForm<ReplyForm>();
 
   const { trigger: commentTrigger } = useMutation(
-    MEETS_API_ROUTE.COMMENTS(String(router.query.id)),
+    MEETS_API_ROUTE.COMMENTS(pageId),
     "POST",
     mutate
   );
@@ -140,7 +138,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
 
   return (
     <Layout hasBack hasTopBar seoTitle='meetUp' title={meetUp.name}>
-      <div className='wrapper py-10 pb-20 text-gray-400 h-full '>
+      <div className='wrapper py-10 pb-20 text-gray-400 h-full w-full '>
         <div className='topbox px-4 bg-[rgb(20,20,20)] py-2'>
           <div className='picture h-96 bg-orange-300' />
           <MiniProfile
@@ -204,30 +202,18 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
         <div className='bg-[rgb(20,20,20)] w-full px-4 '>
           <p>{`comments: ${meetUp.comments?.length}`}</p>
           {meetUp.comments.map((comment, index) => {
-            const {
-              id,
-              text,
-              createdAt,
-              user: { username, id: ownerId, avatar },
-              parent,
-              comments,
-              likes,
-            } = comment;
             return (
-              !parent && (
+              !comment.parent && (
                 <Comment
-                  comments={comments as []}
-                  key={index}
-                  postId={meetUp.id.toString()}
-                  likes={likes?.length}
-                  owner={ownerId === userId}
-                  writtenAt={timeFormatter(createdAt.toString())}
-                  userId={String(userId)}
-                  avatar={avatar}
-                  text={text}
-                  userName={username}
-                  id={id.toString()}
+                  key={`comment${index}`}
+                  {...comment}
+                  likes={comment.likes!.length}
+                  postId={+pageId}
+                  writtenAt={comment.createdAt.toString()}
                   kind='MeetUp'
+                  isOwner={+userId === comment.user.id}
+                  userName={comment.user.username}
+                  comments={comment.comments as []}
                 />
               )
             );
