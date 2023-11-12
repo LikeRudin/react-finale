@@ -5,8 +5,6 @@ import type {
 } from "next";
 import { withSessionSSR } from "@/libs/server/session";
 
-import useSWR from "swr";
-
 import { useForm } from "react-hook-form";
 
 import TextArea from "../components/common/textarea";

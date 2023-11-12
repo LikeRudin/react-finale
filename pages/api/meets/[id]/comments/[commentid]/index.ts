@@ -11,7 +11,10 @@ const handler: structuredNextApiHandler = async (req, res) => {
   } = req;
 
   if (!(meetUpId && commentid && user)) {
-    return res.status(404).json({ ok: false, error: HTTPMESSAGE.STATUS404 });
+    return res.status(404).json({
+      ok: false,
+      error: HTTPMESSAGE.STATUS404("먼저 로그인 해주세요"),
+    });
   }
   switch (req.method) {
     case "DELETE":
@@ -34,16 +37,17 @@ const handler: structuredNextApiHandler = async (req, res) => {
       if (!deleteTransaction) {
         return res
           .status(500)
-          .json({ ok: false, error: HTTPMESSAGE.STATUS500 });
+          .json({ ok: false, error: HTTPMESSAGE.STATUS500("댓글 삭제 실패") });
       }
       return res.status(202).json({ ok: true, data: "댓글을 삭제했습니다." });
 
     case "POST":
       const { edit } = req.body;
       if (!edit) {
-        return res
-          .status(404)
-          .json({ ok: false, error: HTTPMESSAGE.STATUS404 });
+        return res.status(404).json({
+          ok: false,
+          error: HTTPMESSAGE.STATUS404("존재하지 않는 게시물입니다."),
+        });
       }
       const postTransaction = await client.$transaction([
         client.meetUpComment.update({
@@ -69,7 +73,7 @@ const handler: structuredNextApiHandler = async (req, res) => {
       if (!postTransaction) {
         return res
           .status(500)
-          .json({ ok: false, error: HTTPMESSAGE.STATUS500 });
+          .json({ ok: false, error: HTTPMESSAGE.STATUS500("댓글 수정 실패") });
       }
       return res
         .status(202)

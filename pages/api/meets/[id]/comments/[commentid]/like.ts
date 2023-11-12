@@ -11,7 +11,9 @@ const handler: structuredNextApiHandler = async (req, res) => {
   } = req;
 
   if (!(meetUpId && commentid && user)) {
-    return res.status(404).json({ ok: false, error: HTTPMESSAGE.STATUS404 });
+    return res
+      .status(404)
+      .json({ ok: false, error: HTTPMESSAGE.STATUS404("") });
   }
 
   const comment = await client.meetUpComment.findUnique({
