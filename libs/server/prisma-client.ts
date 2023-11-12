@@ -130,7 +130,6 @@ const createClient = () => {
           if (!meetUp) {
             return null;
           }
-          console.log(meetUp.comments);
           const isLiked = meetUp.likes.some((like) => like.userId === userId);
           const isJoined = meetUp.joins.some((join) => join.userId === userId);
 

@@ -21,7 +21,7 @@ import ReTweet from "./retweet";
 import ModalComment from "./modal-comment";
 import CategoryTextIcon from "./icons/category-text";
 import CreatedTime from "./icons/created-time";
-import ArrowInCircleIcon from "./icons/arrow-in-circle";
+
 import Modal from "./modal";
 
 export type TweetCommentData = TweetComment & {
@@ -93,6 +93,7 @@ const TweetPost = ({
             <MiniProfile
               userName={user?.username}
               userId={userId}
+              imagepath={user.avatar}
               widthAndHeight='w-8 h-8'
             />
             <CategoryTextIcon text={tweetCategoryParser(category)} />
@@ -147,7 +148,11 @@ const TweetPost = ({
         <div className='flex flex-col w-[30rem]  space-y-5 py-10 h-2/3 bg-gray-800 overflow-y-auto'>
           {tweets?.length ? (
             tweets.map((retweet, index) => (
-              <ReTweet key={`retweet-${index}`} {...retweet} />
+              <ReTweet
+                key={`retweet-${index}`}
+                avatar={retweet.user.avatar}
+                {...retweet}
+              />
             ))
           ) : (
             <div className='flex space-x-4 items-center justify-center'>
@@ -164,7 +169,7 @@ const TweetPost = ({
             comments.map((comment, index) => {
               const {
                 createdAt,
-                user: { username },
+                user: { username, avatar },
                 parent,
               } = comment;
               return (
@@ -172,6 +177,7 @@ const TweetPost = ({
                   <ModalComment
                     key={`comment${index}`}
                     userName={username}
+                    avatar={avatar}
                     writtenAt={timeFormatter(createdAt.toString())}
                     {...comment}
                   />

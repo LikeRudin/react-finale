@@ -4,7 +4,7 @@ import useDetailPage from "@/libs/client/useDetailPage";
 import { activityLogParser } from "@/libs/util/activity-log-parser";
 import Link from "next/link";
 import { useState } from "react";
-import cls from "@/libs/util/cls";
+
 import { notificationLogParser } from "@/libs/util/notification-log-parser";
 import CheckIcon from "../components/icons/check";
 import HeartIcon from "../components/icons/heart";
@@ -14,6 +14,8 @@ import CreatedTime from "../components/icons/created-time";
 import Modal from "../components/modal";
 import LoadingCover from "../components/common/loading-cover";
 import { PROFILE_API_ROUTE } from "@/libs/util/apiroutes";
+import { CreateImagePath } from "@/constants/tweet-category";
+import Image from "next/image";
 
 interface UserData {
   meetUpLikes: {
@@ -43,13 +45,23 @@ const Profile = () => {
 
   switch (userDetail.status) {
     case "ok":
-      const { username, activityLogs, notifications, introduction } =
+      const { username, activityLogs, notifications, introduction, avatar } =
         userDetail.data;
       return (
         <Layout title='프로필' seoTitle='내계정' hasBottomBar hasTopBar>
           <div className='px-4 text-gray-300 h-full w-full'>
             <div className='profile px-4 flex items-center cursor-pointer py-4 space-x-4 border-t border-b'>
-              <div className='rounded-full w-[52px] h-[52px] bg-orange-500' />
+              {avatar ? (
+                <Image
+                  width={32}
+                  height={32}
+                  src={CreateImagePath(avatar)}
+                  alt=''
+                  className=' w-[52px] h-[52px] rounded-full'
+                />
+              ) : (
+                <div className='rounded-full w-[52px] h-[52px] bg-orange-500' />
+              )}
               <div className='flex-col space-y-1'>
                 <p className='text-sm font-medium text-gray-300'>{username}</p>
                 <Link

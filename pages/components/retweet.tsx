@@ -13,14 +13,16 @@ const ReTweet = ({
   name,
   createdAt,
   description,
+  avatar,
   id,
-}: TweetData) => (
+}: TweetData & { avatar: string | null }) => (
   <div className='w-full flex flex-col items-start px-2 py-5 pb-[] bg-gray-800 border-b-[0.5px] border-b-orange-300 '>
     <div className='px-4'>
       <div className='flex items-center mt-2 space-x-4'>
         <MiniProfile
           userName={user?.username}
           userId={userId}
+          imagepath={avatar}
           widthAndHeight='w-8 h-8'
         />
         <CategoryTextIcon text={tweetCategoryParser(category)} />

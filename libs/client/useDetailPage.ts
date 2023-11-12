@@ -3,9 +3,12 @@ import type { KeyedMutator } from "swr";
 
 type UseDetailPage<T> =
   | { status: "ok"; data: T; mutate: KeyedMutator<any> }
-  | { status: "error"; error: object | string };
+  | { status: "error"; mutate: KeyedMutator<any>; error: object | string };
 
-const useDetailPage = <T>(url: string, fallbackData?: {}): UseDetailPage<T> => {
+const useDetailPage = <T = any>(
+  url: string,
+  fallbackData?: {}
+): UseDetailPage<T> => {
   const { data, error, mutate } = useSWR(
     url,
     (url: string) =>
@@ -29,7 +32,9 @@ const useDetailPage = <T>(url: string, fallbackData?: {}): UseDetailPage<T> => {
       fallbackData,
     }
   );
-  return data ? { status: "ok", data, mutate } : { status: "error", error };
+  return data
+    ? { status: "ok", data, mutate }
+    : { status: "error", error, mutate };
 };
 
 export default useDetailPage;

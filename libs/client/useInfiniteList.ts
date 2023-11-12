@@ -5,36 +5,21 @@ type FetchOption = {
   numPerPage?: number;
 };
 
+type AdditionalLoading = "error" | "loading-more" | "reaching-end" | "no";
+
 type LoadTrigger<T = any> = () => Promise<T[][] | undefined>;
 
 type useInfiniteList<T> =
   | { status: "loading"; refresh: KeyedMutator<T[][]> }
   | {
       status: "ok";
+      additionalLoading: AdditionalLoading;
       data: T[];
       refresh: KeyedMutator<T[][]>;
       loadTrigger: LoadTrigger<T>;
+      errorLoadMore: T | undefined;
     }
-  | {
-      status: "loading-more";
-      refresh: KeyedMutator<T[][]>;
-      data: T[];
-      loadTrigger: LoadTrigger<T>;
-    }
-  | {
-      status: "reaching-end";
-      refresh: KeyedMutator<T[][]>;
-      data: T[];
-      loadTrigger: LoadTrigger<T>;
-    }
-  | { status: "error-init"; refresh: KeyedMutator<T[][]>; error: T }
-  | {
-      status: "error-later";
-      refresh: KeyedMutator<T[][]>;
-      data: T[];
-      error: T;
-      loadTrigger: LoadTrigger<T>;
-    };
+  | { status: "error"; refresh: KeyedMutator<T[][]>; error: T };
 
 const useInfiniteList = <T = any>({
   url,
@@ -70,15 +55,6 @@ const useInfiniteList = <T = any>({
           return error;
         });
     }
-    // .then((result) => {
-    //   if (!result.ok) {
-    //     throw new Error(result.error);
-    //   }
-    //   return result.data;
-    // })
-    // .catch((error) => {
-    //   throw error;
-    // })
   );
   const isLoading = !datas && !error;
 
@@ -99,20 +75,43 @@ const useInfiniteList = <T = any>({
   if (isLoading) {
     return { status: "loading", refresh };
   } else if (isErrorInit) {
-    return { status: "error-init", error, refresh };
+    return { status: "error", error, refresh };
   }
 
   const data = datas!.flatMap((item) => item);
   if (isLoadingMore) {
-    return { status: "loading-more", data, loadTrigger, refresh };
+    return {
+      status: "ok",
+      additionalLoading: "loading-more",
+      data,
+      errorLoadMore: error,
+      loadTrigger,
+      refresh,
+    };
   }
   if (isReachingEnd) {
-    return { status: "reaching-end", data, loadTrigger, refresh };
+    return {
+      status: "ok",
+      additionalLoading: "reaching-end",
+      data,
+      errorLoadMore: error,
+      loadTrigger,
+      refresh,
+    };
   } else if (isErrorLater) {
-    return { status: "error-later", data, error, loadTrigger, refresh };
+    return {
+      status: "ok",
+      additionalLoading: "error",
+      data,
+      errorLoadMore: error,
+      loadTrigger,
+      refresh,
+    };
   } else {
     return {
       status: "ok",
+      additionalLoading: "no",
+      errorLoadMore: error,
       data,
       loadTrigger,
       refresh,

@@ -38,17 +38,17 @@ const handler: structuredNextApiHandler = async (req, res) => {
           user: true,
           parent: {
             include: {
-              user: { select: { id: true, username: true } },
+              user: { select: { id: true, username: true, avatar: true } },
             },
           },
           comments: {
             include: {
-              user: { select: { id: true, username: true } },
+              user: { select: { id: true, username: true, avatar: true } },
             },
           },
           likes: {
             include: {
-              user: { select: { id: true, username: true } },
+              user: { select: { id: true, username: true, avatar: true } },
             },
           },
           tweets: {
@@ -56,18 +56,18 @@ const handler: structuredNextApiHandler = async (req, res) => {
               user: true,
               parent: {
                 include: {
-                  user: { select: { id: true, username: true } },
+                  user: { select: { id: true, username: true, avatar: true } },
                 },
               },
               comments: {
                 include: {
-                  user: { select: { id: true, username: true } },
+                  user: { select: { id: true, username: true, avatar: true } },
                 },
               },
               tweets: true,
               likes: {
                 include: {
-                  user: { select: { id: true, username: true } },
+                  user: { select: { id: true, username: true, avatar: true } },
                 },
               },
             },

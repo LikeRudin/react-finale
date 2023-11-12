@@ -12,7 +12,7 @@ type CommentType = TweetComment & {
 
 interface CommentProps {
   userName: string;
-  avatar?: string;
+  avatar: string | null;
   text: string;
   writtenAt: string;
   id: number;

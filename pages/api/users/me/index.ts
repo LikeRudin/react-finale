@@ -57,12 +57,14 @@ const handler: structuredNextApiHandler = async (req, res) => {
             .json({ ok: false, error: `이미 존재하는 email/phone입니다` });
         }
       }
+      console.log(imagePath);
       const update = await client.user.update({
         where: { id: userData.id },
         data: {
           email: email,
           phone: phone,
           introduction: introduction,
+          avatar: imagePath,
           activityLogs: {
             create: [
               {
@@ -73,9 +75,10 @@ const handler: structuredNextApiHandler = async (req, res) => {
         },
       });
       if (!update) {
-        return res
-          .status(500)
-          .json({ ok: false, error: HTTPMESSAGE.STATUS500 });
+        return res.status(500).json({
+          ok: false,
+          error: HTTPMESSAGE.STATUS500("업데이트에 실패했습니다."),
+        });
       }
       return res.status(202).json({ ok: true, data: update });
   }

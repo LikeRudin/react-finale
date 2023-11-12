@@ -1,12 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import cls from "@/libs/util/cls";
+import { CreateImagePath } from "@/constants/tweet-category";
 type MiniProfileProps = {
   userName: string;
   userId: number;
-  imagepath?: string;
+  imagepath?: string | null;
   text?: string;
-  widthAndHeight: number | string;
+  widthAndHeight: string;
 };
 
 const MiniProfile = ({
@@ -23,9 +24,10 @@ const MiniProfile = ({
     >
       {imagepath ? (
         <Image
-          width={widthAndHeight as number}
-          height={widthAndHeight as number}
-          src={imagepath}
+          width={32}
+          height={32}
+          src={CreateImagePath(imagepath)}
+          className='w-[40px] h-[40px] rounded-full'
           alt=''
         />
       ) : (

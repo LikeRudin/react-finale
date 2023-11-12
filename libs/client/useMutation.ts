@@ -3,11 +3,10 @@ import { HTTPMethod } from "../server/request-validator";
 
 type UseMutationState<T> =
   | { status: "ok"; data: T }
-  | { status: "fail"; error: object | string }
   | { status: "error"; error: object | string }
   | { status: "loading" };
 
-type useMutationResult<T> = {
+type UseMutationResult<T> = {
   trigger: (data?: any) => void;
   state: UseMutationState<T>;
 };
@@ -16,7 +15,7 @@ const useMutation = <T = any>(
   url: string,
   type: HTTPMethod,
   callback?: () => void
-): useMutationResult<T> => {
+): UseMutationResult<T> => {
   const { trigger, data, error } = useSWRMutation(
     url,
     async (url, { arg }) => {
@@ -30,9 +29,9 @@ const useMutation = <T = any>(
         .then((response) => response.json())
         .then((parsed) => {
           if (parsed.ok) {
-            return { status: "ok", data: parsed.data };
+            return parsed.data;
           } else {
-            return { status: "fail", error: parsed.error as string };
+            throw new error(parsed.error);
           }
         })
         .catch((error) => {
@@ -47,11 +46,12 @@ const useMutation = <T = any>(
       },
     }
   );
-  const state = data
-    ? data
+  const state: UseMutationState<T> = data
+    ? { status: "ok", data }
     : error
     ? { status: "error", error }
     : { status: "loading" };
+
   return { trigger, state };
 };
 

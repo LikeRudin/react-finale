@@ -3,11 +3,10 @@ import SubmitButton from "../components/common/submit-button";
 import TextArea from "../components/common/textarea";
 import Input from "../components/common/input";
 
-import type useSWR from "swr";
 import useDetailPage from "@/libs/client/useDetailPage";
 import useMutation from "@/libs/client/useMutation";
 import type { User } from "@prisma/client";
-
+import { useEffect, useState } from "react";
 import client from "@/libs/server/prisma-client";
 
 import { useForm } from "react-hook-form";
@@ -21,12 +20,13 @@ import type {
 import { withSessionSSR } from "@/libs/server/session";
 import Router from "next/router";
 import LoadingCover from "../components/common/loading-cover";
+import Image from "next/image";
 
 interface EditForm {
   email: string;
   phone: string;
   introduction: string;
-  imagePath: string;
+  imagePath: FileList;
   password: string;
 }
 
@@ -40,14 +40,51 @@ const Edit: NextPage<EditPageProps> = ({ profileInit }) => {
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm<EditForm>();
 
   const userDetail = useDetailPage<User>(PROFILE_API_ROUTE.EDIT, {
     data: profileInit,
   });
+
+  const [imagePath, setImagePath] = useState("");
+  const uploadedAvatar = watch("imagePath");
+
+  useEffect(() => {
+    if (userDetail.status === "ok" && userDetail.data.avatar) {
+      setImagePath(
+        `https://imagedelivery.net/f_vDOY5X8q6G-fojXO70Ng/${userDetail.data.avatar}/public`
+      );
+    }
+  }, [userDetail]);
+
+  useEffect(() => {
+    if (uploadedAvatar && uploadedAvatar.length) {
+      const file = uploadedAvatar[0];
+      setImagePath(URL.createObjectURL(file));
+    }
+  }, [uploadedAvatar, imagePath]);
+
   const { trigger, state } = useMutation(PROFILE_API_ROUTE.EDIT, "POST");
+
   const onValid = async (submitData: EditForm) => {
-    await trigger(submitData);
+    if (uploadedAvatar && uploadedAvatar.length && userDetail.status === "ok") {
+      const { uploadURL } = await (await fetch("/api/files")).json();
+      const form = new FormData();
+      form.append("file", uploadedAvatar[0], `profile-${userDetail.data.id}`);
+      const {
+        result: { id },
+      } = await (
+        await fetch(uploadURL, {
+          method: "POST",
+          body: form,
+        })
+      ).json();
+      console.log(id);
+      await trigger({ ...submitData, imagePath: id });
+    } else {
+      await trigger({ ...submitData });
+    }
     if (state.status === "ok") {
       Router.replace("/profile");
     }
@@ -56,6 +93,7 @@ const Edit: NextPage<EditPageProps> = ({ profileInit }) => {
   switch (userDetail.status) {
     case "ok":
       const { username, email, phone, introduction } = userDetail.data;
+
       return (
         <Layout title='프로필 편집' seoTitle='edit' hasTopBar hasBack>
           <div className='flex justify-center w-full'>
@@ -64,13 +102,24 @@ const Edit: NextPage<EditPageProps> = ({ profileInit }) => {
               onSubmit={handleSubmit(onValid)}
             >
               <div className='profile flex items-center cursor-pointer py-4 space-x-4 border-b'>
-                <div className='rounded-full w-[52px] h-[52px] bg-orange-500' />
+                {imagePath ? (
+                  <Image
+                    src={imagePath}
+                    width={32}
+                    height={32}
+                    className='w-[52px] h-[52px] rounded-full'
+                    alt=''
+                  />
+                ) : (
+                  <div className='rounded-full w-[52px] h-[52px] bg-orange-500' />
+                )}
                 <div className='flex-col space-y-1'>
                   <p className='text-sm font-medium'>{username}</p>
                   <label className='cursor-pointer'>
                     <input
                       type='file'
                       className='hidden'
+                      accept='image/*'
                       {...register("imagePath")}
                     />
                     <span>Edit Profile Image</span>
@@ -142,7 +191,7 @@ const Edit: NextPage<EditPageProps> = ({ profileInit }) => {
                   {errors.password.message}
                 </p>
               )}
-              {state.status === "fail" && (
+              {state.status === "error" && (
                 <p className='text-sm text-red-500'>
                   {JSON.stringify(state.error)}
                 </p>

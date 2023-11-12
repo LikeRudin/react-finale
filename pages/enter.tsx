@@ -138,7 +138,7 @@ export default function Enter() {
                     />
                     <SubmitButton text={method} />
                   </form>
-                  {passwordState.status === "fail" && (
+                  {passwordState.status === "error" && (
                     <p>{JSON.stringify(passwordState.error)}</p>
                   )}
                 </>
@@ -159,7 +159,7 @@ export default function Enter() {
                       {method}
                     </button>
                   </form>
-                  {loginState.status === "fail" && (
+                  {loginState.status === "error" && (
                     <p>{JSON.stringify(loginState.error)}</p>
                   )}
                 </>
@@ -278,7 +278,7 @@ export default function Enter() {
                       Create new account
                     </button>
                   </form>
-                  {accountData.status === "fail" && (
+                  {accountData.status === "error" && (
                     <p>{JSON.stringify(accountData.error)}</p>
                   )}
                 </>
@@ -299,7 +299,7 @@ export default function Enter() {
                       {method}
                     </button>
                   </form>
-                  {signInState.status === "fail" && (
+                  {signInState.status === "error" && (
                     <div className='text-red-500 mt-2'>
                       <p>{JSON.stringify(signInState.error)}</p>
                       <p>{"비밀번호가 기억나지 않으세요?"}</p>
