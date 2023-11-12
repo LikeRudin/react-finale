@@ -48,7 +48,7 @@ interface CommentProps {
   parentId?: number;
   comments?: CommentType[];
   likes?: number;
-  kind: "MeetUp" | "Tweet";
+  apiPath: typeof MEETS_API_ROUTE | typeof TWEETS_API_ROUTE;
 }
 
 interface EditForm {
@@ -71,7 +71,7 @@ const Comment = ({
   comments = [],
   parentId = 0,
   likes = 0,
-  kind,
+  apiPath,
 }: CommentProps) => {
   const { register, handleSubmit, setValue } = useForm<any>();
 
@@ -87,30 +87,25 @@ const Comment = ({
     setisEditing((prev) => !prev);
   };
 
-  const apiRoute = {
-    MeetUp: MEETS_API_ROUTE,
-    Tweet: TWEETS_API_ROUTE,
-  }[kind];
-
   const { trigger: deleteTrigger } = useMutation(
-    apiRoute.COMMENTS_EDIT(postId, id),
+    apiPath.COMMENTS_EDIT(postId, id),
     "DELETE",
-    () => mutate(apiRoute.DETAIL(postId))
+    () => mutate(apiPath.DETAIL(postId))
   );
   const { trigger: EditTrigger } = useMutation(
-    apiRoute.COMMENTS_EDIT(postId, id),
+    apiPath.COMMENTS_EDIT(postId, id),
     "POST",
-    () => mutate(apiRoute.DETAIL(postId))
+    () => mutate(apiPath.DETAIL(postId))
   );
   const { trigger: ReplyTrigger } = useMutation(
-    apiRoute.COMMENTS_REPLY(postId, id),
+    apiPath.COMMENTS_REPLY(postId, id),
     "POST",
-    () => mutate(apiRoute.DETAIL(postId))
+    () => mutate(apiPath.DETAIL(postId))
   );
   const { trigger: LikeTrigger } = useMutation(
-    apiRoute.COMMENTS_LIKE(postId, id),
+    apiPath.COMMENTS_LIKE(postId, id),
     "POST",
-    () => mutate(apiRoute.DETAIL(postId))
+    () => mutate(apiPath.DETAIL(postId))
   );
 
   const onLikeClick = () => {
@@ -238,7 +233,7 @@ const Comment = ({
                     likes={likes?.length}
                     postId={postId}
                     id={replyId}
-                    kind={kind}
+                    apiPath={apiPath}
                   />
                 )
               );

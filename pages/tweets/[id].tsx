@@ -141,7 +141,7 @@ const TweetDetail: NextPage<TweetDetailProps> = ({
                         writtenAt={tweet.createdAt}
                         isOwner={tweet.userId === userId}
                         likes={tweet.likes.length}
-                        kind='Tweet'
+                        apiPath={TWEETS_API_ROUTE}
                         parentId={undefined}
                       />
                     )
