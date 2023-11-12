@@ -1,5 +1,5 @@
 import useMutation from "@/libs/client/useMutation";
-import { MEETS_API_ROUTE } from "@/libs/util/apiroutes";
+import { TWEETS_API_ROUTE } from "@/libs/util/apiroutes";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { mutate } from "swr";
@@ -52,7 +52,7 @@ interface ReplyForm {
   reply: string;
 }
 
-const Comment = ({
+const TwComment = ({
   id,
   userId,
   postId,
@@ -80,24 +80,24 @@ const Comment = ({
   };
 
   const { trigger: deleteTrigger } = useMutation(
-    MEETS_API_ROUTE.COMMENTS_EDIT(postId, id),
+    TWEETS_API_ROUTE.COMMENTS_EDIT(postId, id),
     "DELETE",
-    () => mutate(MEETS_API_ROUTE.DETAIL(postId))
+    () => mutate(TWEETS_API_ROUTE.DETAIL(postId))
   );
   const { trigger: EditTrigger } = useMutation(
-    MEETS_API_ROUTE.COMMENTS_EDIT(postId, id),
+    TWEETS_API_ROUTE.COMMENTS_EDIT(postId, id),
     "POST",
-    () => mutate(MEETS_API_ROUTE.DETAIL(postId))
+    () => mutate(TWEETS_API_ROUTE.DETAIL(postId))
   );
   const { trigger: ReplyTrigger } = useMutation(
-    MEETS_API_ROUTE.COMMENTS_REPLY(postId, id),
+    TWEETS_API_ROUTE.COMMENTS_REPLY(postId, id),
     "POST",
-    () => mutate(MEETS_API_ROUTE.DETAIL(postId))
+    () => mutate(TWEETS_API_ROUTE.DETAIL(postId))
   );
   const { trigger: LikeTrigger } = useMutation(
-    MEETS_API_ROUTE.COMMENTS_LIKE(postId, id),
+    TWEETS_API_ROUTE.COMMENTS_LIKE(postId, id),
     "POST",
-    () => mutate(MEETS_API_ROUTE.DETAIL(postId))
+    () => mutate(TWEETS_API_ROUTE.DETAIL(postId))
   );
 
   const onLikeClick = () => {
@@ -212,7 +212,7 @@ const Comment = ({
               return (
                 parentId &&
                 parentId === id && (
-                  <Comment
+                  <TwComment
                     comments={comments as []}
                     key={index}
                     isOwner={ownerId === userId}
@@ -235,4 +235,4 @@ const Comment = ({
   );
 };
 
-export default Comment;
+export default TwComment;

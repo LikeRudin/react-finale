@@ -5,8 +5,8 @@ import { withSessionSSR } from "@/libs/server/session";
 import client from "@/libs/server/prisma-client";
 import type {
   Tweet,
-  TweetComment,
   TweetCommentLike,
+  TweetComment,
   TweetLike,
   User,
 } from "@prisma/client";
@@ -23,10 +23,11 @@ import cls from "@/libs/util/cls";
 import TweetPost from "../components/tweet-post";
 import { useState } from "react";
 import { UploadTweet } from "./upload-mockup";
-import Comment from "../components/comment";
+
 import type { CommentType } from "../components/comment";
 import useDetailPage from "@/libs/client/useDetailPage";
 import LoadingCover from "../components/common/loading-cover";
+import TwComment from "../components/tweet-comment";
 
 type TweetCommentData = CommentType & {
   user: User;
@@ -133,7 +134,7 @@ const TweetDetail: NextPage<TweetDetailProps> = ({
                   const { parent } = comment;
                   return (
                     !parent && (
-                      <Comment
+                      <TwComment
                         key={index}
                         {...comment}
                         userName={comment.user.username}
@@ -141,7 +142,6 @@ const TweetDetail: NextPage<TweetDetailProps> = ({
                         writtenAt={tweet.createdAt}
                         isOwner={tweet.userId === userId}
                         likes={tweet.likes.length}
-                        apiPath={TWEETS_API_ROUTE}
                         parentId={undefined}
                       />
                     )
