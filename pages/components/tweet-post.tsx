@@ -93,7 +93,7 @@ const TweetPost = ({
             <MiniProfile
               userName={user?.username}
               userId={userId}
-              imagepath={user.avatar}
+              imagepath={user?.avatar}
               widthAndHeight='w-8 h-8'
             />
             <CategoryTextIcon text={tweetCategoryParser(category)} />
@@ -150,7 +150,7 @@ const TweetPost = ({
             tweets.map((retweet, index) => (
               <ReTweet
                 key={`retweet-${index}`}
-                avatar={retweet.user.avatar}
+                avatar={retweet.user?.avatar}
                 {...retweet}
               />
             ))
