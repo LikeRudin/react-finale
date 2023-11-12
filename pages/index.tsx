@@ -32,7 +32,7 @@ const Home: NextPage = () => {
           <div className='w-full max-w-xl max-h-screen overflow-y-auto bg-inherit flex flex-col justify-start    '>
             {meetUps.map((item, index) => {
               const {
-                user: { username },
+                user,
                 id,
                 name,
                 createdAt,
@@ -66,7 +66,7 @@ const Home: NextPage = () => {
                       </div>
                       <p className='text-sm'>/{location}</p>
                       <span className='font-medium mt-1 text-sm text-gray-100'>
-                        {`Host: ${String(username)}`}
+                        {`Host: ${String(user?.username)}`}
                       </span>
                     </div>
                   </div>

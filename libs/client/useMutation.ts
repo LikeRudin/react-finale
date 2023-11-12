@@ -6,7 +6,7 @@ type UseMutationState<T> =
   | { status: "error"; error: object | string }
   | { status: "loading" };
 
-type UseMutationResult<T> = {
+type useMutationResult<T> = {
   trigger: (data?: any) => void;
   state: UseMutationState<T>;
 };
@@ -15,7 +15,7 @@ const useMutation = <T = any>(
   url: string,
   type: HTTPMethod,
   callback?: () => void
-): UseMutationResult<T> => {
+): useMutationResult<T> => {
   const { trigger, data, error } = useSWRMutation(
     url,
     async (url, { arg }) => {
@@ -29,9 +29,9 @@ const useMutation = <T = any>(
         .then((response) => response.json())
         .then((parsed) => {
           if (parsed.ok) {
-            return parsed.data;
+            return { status: "ok", data: parsed.data };
           } else {
-            throw new error(parsed.error);
+            return { status: "fail", error: parsed.error as string };
           }
         })
         .catch((error) => {
@@ -46,12 +46,11 @@ const useMutation = <T = any>(
       },
     }
   );
-  const state: UseMutationState<T> = data
-    ? { status: "ok", data }
+  const state = data
+    ? data
     : error
     ? { status: "error", error }
     : { status: "loading" };
-
   return { trigger, state };
 };
 

@@ -64,9 +64,10 @@ export default function Enter() {
   const onLoginClick = () => setMethod("Login");
   const onSigninClick = () => setMethod("Sign-in");
 
-  const onLoginStartValid = (validForm: EnterForm) => {
+  const onLoginStartValid = async (validForm: EnterForm) => {
     reset();
     loginStart(validForm);
+    console.log(loginState);
   };
   const onPasswordValid = (validForm: PasswordForm) => {
     confirmPassword(validForm);
@@ -121,7 +122,7 @@ export default function Enter() {
           </div>
           {method === "Login" && (
             <>
-              {loginState.status === "ok" ? (
+              {loginState.status === "ok" && (
                 <>
                   <form onSubmit={handlePasswordSubmit(onPasswordValid)}>
                     <Input
@@ -142,7 +143,8 @@ export default function Enter() {
                     <p>{JSON.stringify(passwordState.error)}</p>
                   )}
                 </>
-              ) : (
+              )}
+              {loginState.status !== "ok" && (
                 <>
                   <form onSubmit={handleSubmit(onLoginStartValid)}>
                     <Input
