@@ -167,17 +167,13 @@ const TweetPost = ({
         <div className='flex flex-col w-[30rem]  space-y-5 py-10 h-2/3 bg-gray-800 overflow-y-auto'>
           {comments?.length ? (
             comments.map((comment, index) => {
-              const {
-                createdAt,
-                user: { username, avatar },
-                parent,
-              } = comment;
+              const { createdAt, user, parent } = comment;
               return (
                 !parent && (
                   <ModalComment
                     key={`comment${index}`}
-                    userName={username}
-                    avatar={avatar}
+                    userName={user?.username}
+                    avatar={user?.avatar}
                     writtenAt={timeFormatter(createdAt.toString())}
                     {...comment}
                   />
