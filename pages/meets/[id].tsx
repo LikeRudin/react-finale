@@ -207,7 +207,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
                       likes={comment.likes!.length}
                       postId={+pageId}
                       writtenAt={comment.createdAt}
-                      kind='MeetUp'
+                      apiPath={MEETS_API_ROUTE}
                       isOwner={+userId === comment.user.id}
                       userName={comment.user.username}
                       avatar={comment.user.avatar}
