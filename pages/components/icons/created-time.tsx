@@ -13,7 +13,7 @@ const CreatedTime = ({ createdAt, className }: CreatedTimeProps) => (
         : "px-2 flex items-center justify-between text-gray-300 font-medium text-xs"
     )}
   >
-    <span>{timeFormatter(createdAt.toString().substring(0, 16))}</span>
+    <span>{timeFormatter(createdAt?.toString().substring(0, 16))}</span>
   </div>
 );
 

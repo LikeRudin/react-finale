@@ -48,7 +48,7 @@ interface CommentProps {
   parentId?: number;
   comments?: CommentType[];
   likes?: number;
-  kind: "MeetUp" | "Review" | "Tweet";
+  kind: "MeetUp" | "Tweet";
 }
 
 interface EditForm {
@@ -90,7 +90,6 @@ const Comment = ({
   const apiRoute = {
     MeetUp: MEETS_API_ROUTE,
     Tweet: TWEETS_API_ROUTE,
-    Review: REVIEWS_API_ROUTE,
   }[kind];
 
   const { trigger: deleteTrigger } = useMutation(

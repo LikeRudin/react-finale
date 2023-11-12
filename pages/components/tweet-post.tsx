@@ -69,7 +69,7 @@ const TweetPost = ({
   const toggleCommentModal = () => setIsCommentModalOpened((prev) => !prev);
 
   const { trigger: likeTrigger } = useMutation(
-    TWEETS_API_ROUTE.LIKE(id.toString()),
+    TWEETS_API_ROUTE.LIKE(id),
     "POST",
     () => mutate()
   );
