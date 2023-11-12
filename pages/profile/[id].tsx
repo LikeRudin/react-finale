@@ -13,6 +13,7 @@ import type { User, MeetUp, Tweet } from "@prisma/client";
 
 import type { NextPage } from "next";
 import useSWR from "swr";
+import LoadingCover from "../components/common/loading-cover";
 
 type UserData = User & { meetUps: MeetUp[]; tweets: Tweet[] };
 
@@ -27,23 +28,34 @@ type OtherProfileProps = {
 };
 
 const Profile: NextPage<OtherProfileProps> = ({ profileInit, otherUserId }) => {
-  const {
-    data: { profile },
-    mutate,
-  } = useDetailPage(PROFILE_API_ROUTE.OTHERS(otherUserId), {
-    profile: profileInit,
-  }) as UseSWROthersProfileResponse & ReturnType<typeof useSWR>;
-
-  return (
-    <Layout
-      title={`${profile.username}'s Profile`}
-      seoTitle={`${profile.username}`}
-      hasBack
-      hasBottomBar
-    >
-      <div>{profile.username}의 프로필</div>
-    </Layout>
+  const userDetail = useDetailPage<UserData>(
+    PROFILE_API_ROUTE.OTHERS(otherUserId),
+    {
+      profile: profileInit,
+    }
   );
+  switch (userDetail.status) {
+    case "ok":
+      const {
+        data: { username, avatar, introduction, meetUps, tweets },
+      } = userDetail;
+      return (
+        <Layout
+          title={`${username}'s profile`}
+          seoTitle={username}
+          hasBack
+          hasTopBar
+        >
+          <div>{username}의 프로필</div>
+        </Layout>
+      );
+    default:
+      return (
+        <Layout hasBack hasTopBar title="Other's profile" seoTitle='other'>
+          <LoadingCover />
+        </Layout>
+      );
+  }
 };
 export default Profile;
 

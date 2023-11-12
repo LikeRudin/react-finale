@@ -19,6 +19,7 @@ import ReplyIcon from "./icons/reply-square";
 import cls from "@/libs/util/cls";
 import MiniProfile from "./mini-profile";
 import ArrowReplyIcon from "./icons/arrow-reply";
+import CreatedTime from "./icons/created-time";
 
 type LikesType = {
   id: number;
@@ -39,7 +40,7 @@ interface CommentProps {
   userName: string;
   avatar?: string;
   text: string;
-  writtenAt: string;
+  writtenAt: Date;
   id: number;
   userId: number;
   isOwner: boolean;
@@ -168,7 +169,7 @@ const Comment = ({
               )}
             </div>
           </div>
-          <span className=' text-xs text-gray-400 mt-1'>{writtenAt}</span>
+          <CreatedTime createdAt={writtenAt} />
         </div>
       </div>
       <div className='w-full'>
@@ -229,7 +230,7 @@ const Comment = ({
                     comments={comments as []}
                     key={index}
                     isOwner={ownerId === userId}
-                    writtenAt={timeFormatter(createdAt.toString())}
+                    writtenAt={createdAt}
                     userId={userId}
                     avatar={avatar as string}
                     text={text}

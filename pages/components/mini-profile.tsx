@@ -17,8 +17,8 @@ const MiniProfile = ({
   widthAndHeight,
 }: MiniProfileProps) => {
   return (
-    <div
-      // href={`/profile/${userId}`}
+    <Link
+      href={`/profile/${userId}`}
       className='flex items-center cursor-pointer py-2 space-x-2 '
     >
       {imagepath ? (
@@ -41,7 +41,7 @@ const MiniProfile = ({
         <p className='text-sm font-medium text-orange-100'>{userName}</p>
         <p className='text-xs font-medium text-gray-400'>{text}</p>
       </div>
-    </div>
+    </Link>
   );
 };
 

@@ -33,7 +33,7 @@ import useDetailPage from "@/libs/client/useDetailPage";
 
 type MeetUpComment = {
   id: number;
-  createdAt: string;
+  createdAt: Date;
   text: string;
   userId: number;
   user: {
@@ -203,7 +203,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
                   {...comment}
                   likes={comment.likes!.length}
                   postId={+pageId}
-                  writtenAt={comment.createdAt.toString()}
+                  writtenAt={comment.createdAt}
                   kind='MeetUp'
                   isOwner={+userId === comment.user.id}
                   userName={comment.user.username}

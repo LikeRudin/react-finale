@@ -19,6 +19,7 @@ const handler: structuredNextApiHandler = async (req, res) => {
       error: HTTPMESSAGE.STATUS404("존재하지 않는 user입니다."),
     });
   }
+  console.log(profile);
   return res.status(200).json({ ok: true, data: profile });
 };
 

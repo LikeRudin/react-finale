@@ -10,7 +10,7 @@ import type {
   TweetLike,
   User,
 } from "@prisma/client";
-import useSWR from "swr";
+
 import { ROUTE_PATH, TWEETS_API_ROUTE } from "@/libs/util/apiroutes";
 
 import TextArea from "../components/common/textarea";
@@ -22,10 +22,11 @@ import cls from "@/libs/util/cls";
 
 import TweetPost from "../components/tweet-post";
 import { useState } from "react";
-import { UploadTweet } from "./upload";
+import { UploadTweet } from "./upload-mockup";
 import Comment from "../components/comment";
 import type { CommentType } from "../components/comment";
 import useDetailPage from "@/libs/client/useDetailPage";
+import LoadingCover from "../components/common/loading-cover";
 
 type TweetCommentData = CommentType & {
   user: User;
@@ -43,10 +44,8 @@ type TweetData = Tweet & {
   parentId: number;
 };
 
-interface TweetSWRResponse {
-  status: "ok" | "loading" | "error";
-  data: { tweet: TweetData; isLiked: boolean };
-}
+type TweetDetail = { tweet: TweetData; isLiked: boolean };
+
 type ReplyForm = {
   reply: string;
 };
@@ -65,13 +64,13 @@ const TweetDetail: NextPage<TweetDetailProps> = ({
   userId,
   pageId,
 }) => {
-  const {
-    data: { tweet, isLiked },
-    mutate,
-  } = useDetailPage(TWEETS_API_ROUTE.DETAIL(pageId), {
-    tweet: tweetInit,
-    isLiked: isLikedInit,
-  }) as TweetSWRResponse & ReturnType<typeof useSWR>;
+  const tweetDetail = useDetailPage<TweetDetail>(
+    TWEETS_API_ROUTE.DETAIL(pageId),
+    {
+      tweet: tweetInit,
+      isLiked: isLikedInit,
+    }
+  );
 
   const { register, handleSubmit, setValue } = useForm<ReplyForm>();
   const [submitForm, setSubmitForm] = useState<"Comment" | "Retweet">(
@@ -83,81 +82,96 @@ const TweetDetail: NextPage<TweetDetailProps> = ({
   const { trigger: commentTrigger } = useMutation(
     TWEETS_API_ROUTE.COMMENTS(pageId.toString()),
     "POST",
-    mutate
+    tweetDetail.mutate
   );
 
   const onValid = ({ reply }: ReplyForm) => {
     commentTrigger({ reply });
   };
-  return (
-    <Layout title={tweet.name} seoTitle={tweet.name} hasBack hasTopBar>
-      <div className='h-full w-full'>
-        <div className='w-full border-b mt-5'>
-          <TweetPost {...tweet} isLiked={isLiked} mutate={() => mutate()} />
-        </div>
-        <div className='grid border-b w-full mt-8 grid-cols-2'>
-          <button
-            onClick={onCommentClick}
-            className={cls(
-              "pb-4 font-semibold text-sm border-b-2",
-              submitForm === "Comment"
-                ? " border-orange-700"
-                : "border-transparent hover:text-gray-400 text-gray-500"
-            )}
-          >
-            Comment
-          </button>
-          <button
-            onClick={onRetweetClick}
-            className={cls(
-              "pb-4 font-semibold text-sm border-b-2",
-              submitForm === "Retweet"
-                ? " border-orange-700"
-                : "border-transparent hover:text-gray-400 text-gray-500"
-            )}
-          >
-            Retweet
-          </button>
-        </div>
 
-        {submitForm === "Comment" && (
-          <div className='bg-[rgb(20,20,20)] w-full px-4 '>
-            {tweet.comments.map((comment, index) => {
-              const { parent } = comment;
-              return (
-                !parent && (
-                  <Comment
-                    key={index}
-                    {...comment}
-                    userName={comment.user.username}
-                    postId={tweet.id}
-                    writtenAt={tweet.createdAt.toString()}
-                    isOwner={tweet.userId === userId}
-                    likes={tweet.likes.length}
-                    kind='Tweet'
-                    parentId={undefined}
-                  />
-                )
-              );
-            })}
-
-            <form onSubmit={handleSubmit(onValid)}>
-              <TextArea
-                register={register("reply", { required: true })}
-                label='Comment'
-                required={true}
-                name='reply-textarea'
-                setValue={setValue}
-                value={""}
+  switch (tweetDetail.status) {
+    case "ok":
+      const { tweet, isLiked } = tweetDetail.data;
+      return (
+        <Layout title={tweet.name} seoTitle={tweet.name} hasBack hasTopBar>
+          <div className='h-full w-full'>
+            <div className='w-full border-b mt-5'>
+              <TweetPost
+                {...tweet}
+                isLiked={isLiked}
+                mutate={() => tweetDetail.mutate()}
               />
-              <SubmitButton text='Add Comment' />
-            </form>
+            </div>
+            <div className='grid border-b w-full mt-8 grid-cols-2'>
+              <button
+                onClick={onCommentClick}
+                className={cls(
+                  "pb-4 font-semibold text-sm border-b-2",
+                  submitForm === "Comment"
+                    ? " border-orange-700"
+                    : "border-transparent hover:text-gray-400 text-gray-500"
+                )}
+              >
+                Comment
+              </button>
+              <button
+                onClick={onRetweetClick}
+                className={cls(
+                  "pb-4 font-semibold text-sm border-b-2",
+                  submitForm === "Retweet"
+                    ? " border-orange-700"
+                    : "border-transparent hover:text-gray-400 text-gray-500"
+                )}
+              >
+                Retweet
+              </button>
+            </div>
+
+            {submitForm === "Comment" && (
+              <div className='bg-[rgb(20,20,20)] w-full px-4 '>
+                {tweet.comments.map((comment, index) => {
+                  const { parent } = comment;
+                  return (
+                    !parent && (
+                      <Comment
+                        key={index}
+                        {...comment}
+                        userName={comment.user.username}
+                        postId={tweet.id}
+                        writtenAt={tweet.createdAt}
+                        isOwner={tweet.userId === userId}
+                        likes={tweet.likes.length}
+                        kind='Tweet'
+                        parentId={undefined}
+                      />
+                    )
+                  );
+                })}
+
+                <form onSubmit={handleSubmit(onValid)}>
+                  <TextArea
+                    register={register("reply", { required: true })}
+                    label='Comment'
+                    required={true}
+                    name='reply-textarea'
+                    setValue={setValue}
+                    value={""}
+                  />
+                  <SubmitButton text='Add Comment' />
+                </form>
+              </div>
+            )}
+            {submitForm === "Retweet" && <UploadTweet parentId={tweet.id} />}
           </div>
-        )}
-        {submitForm === "Retweet" && <UploadTweet parentId={tweet.id} />}
-      </div>
-    </Layout>
-  );
+        </Layout>
+      );
+    default:
+      return (
+        <Layout title='Tweet Detail' seoTitle='Tweet' hasBack hasTopBar>
+          <LoadingCover />
+        </Layout>
+      );
+  }
 };
 
 export default TweetDetail;
