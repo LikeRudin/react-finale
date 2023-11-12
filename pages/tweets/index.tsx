@@ -1,6 +1,5 @@
 import type { NextPage } from "next";
 import Link from "next/link";
-import React from "react";
 
 import useInfiniteList from "@/libs/client/useInfiniteList";
 import { TWEETS_API_ROUTE } from "@/libs/util/apiroutes";
@@ -31,7 +30,6 @@ const Community: NextPage = () => {
                 <div
                   className='cursor-pointer relative flex flex-col items-start border-b   hover:bg-emerald-900 group/link'
                   key={`tweets${index}`}
-                  onClick={(event: React.MouseEvent) => event.preventDefault()}
                 >
                   <Link href={`/tweets/${tweet.id}`}>
                     <ArrowInCircleIcon className='hidden group-hover/link:block group-hover/link:absolute top-5 right-4  w-8 h-8 hover:stroke-orange-300' />

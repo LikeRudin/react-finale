@@ -7,7 +7,7 @@ interface ButtonProps {
 
 const CircleLinkButton = ({ tooltip, linkAddress }: ButtonProps) => {
   return (
-    <Link href={linkAddress}>
+    <Link href={linkAddress || "/meets/upload"}>
       <div className='fixed bottom-24 right-2 w-[124px] '>
         <button className='group w-full flex-col items-center justify-center'>
           <div className='absolute bottom-[115%] right-[5%] bg-gray-200  w-full h-6 rounded-md hidden group-hover:block break-none'>
