@@ -18,3 +18,5 @@ const PictureIcon = ({ className }: PictureIconProps) => (
     />
   </svg>
 );
+
+export default PictureIcon;

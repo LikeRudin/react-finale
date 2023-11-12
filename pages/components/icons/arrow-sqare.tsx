@@ -18,3 +18,5 @@ const ArrowSquare = ({ className }: ArrowSquareProps) => (
     />
   </svg>
 );
+
+export default ArrowSquare;
