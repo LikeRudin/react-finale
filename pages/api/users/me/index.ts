@@ -57,7 +57,7 @@ const handler: structuredNextApiHandler = async (req, res) => {
             .json({ ok: false, error: `이미 존재하는 email/phone입니다` });
         }
       }
-      console.log(imagePath);
+
       const update = await client.user.update({
         where: { id: userData.id },
         data: {

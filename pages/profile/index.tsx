@@ -77,8 +77,9 @@ const Profile = () => {
                 Introduction
               </span>
               <div className='h-24 w-full text-sm text-gray-400 rounded-md break-normal bg-color-white shadow-sm border-2 border-gray-400'>
-                {introduction ||
-                  "Edif profile을 눌러서 소개문구를 작성해보세요."}
+                {introduction
+                  ? introduction
+                  : "Edif profile을 눌러서 소개문구를 작성해보세요."}
               </div>
             </div>
             <div className='p-4'>

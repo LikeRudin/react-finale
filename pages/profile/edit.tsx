@@ -86,6 +86,7 @@ const Edit: NextPage<EditPageProps> = ({ profileInit }) => {
       await trigger({ ...submitData });
     }
     if (state.status === "ok") {
+      console.log(state);
       Router.replace("/profile");
     }
   };
