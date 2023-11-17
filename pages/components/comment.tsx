@@ -14,6 +14,7 @@ import cls from "@/libs/util/cls";
 import MiniProfile from "./mini-profile";
 import ArrowReplyIcon from "./icons/arrow-reply";
 import CreatedTime from "./icons/created-time";
+import useChangeBoolean from "@/libs/util/useChangeBoolean";
 
 type LikesType = {
   id: number;
@@ -67,16 +68,17 @@ const Comment = ({
 }: CommentProps) => {
   const { register, handleSubmit, setValue } = useForm<any>();
 
-  const [isEditing, setisEditing] = useState(false);
-  const [isReplying, setIsReplying] = useState(false);
+  const { state: isEditing, change: changeIsEditing } = useChangeBoolean(false);
+  const { state: isReplying, change: changeIsReplying } =
+    useChangeBoolean(false);
 
   const onReplyClick = () => {
-    setisEditing(false);
-    setIsReplying((prev) => !prev);
+    changeIsEditing(false);
+    changeIsReplying();
   };
   const onEditClick = () => {
-    setIsReplying(false);
-    setisEditing((prev) => !prev);
+    changeIsReplying(false);
+    changeIsEditing();
   };
 
   const { trigger: deleteTrigger } = useMutation(
@@ -112,12 +114,12 @@ const Comment = ({
   };
 
   const onEditValid = ({ edit }: EditForm) => {
-    setisEditing(false);
+    changeIsEditing(false);
     EditTrigger({ edit });
   };
 
   const onReplyValid = ({ reply }: ReplyForm) => {
-    setIsReplying(false);
+    changeIsReplying(false);
     ReplyTrigger({ reply, parentId: id });
   };
 
