@@ -69,6 +69,7 @@ const Comment = ({
   const { register, handleSubmit, setValue } = useForm<any>();
 
   const { state: isEditing, change: changeIsEditing } = useChangeBoolean(false);
+
   const { state: isReplying, change: changeIsReplying } =
     useChangeBoolean(false);
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import cls from "@/libs/util/cls";
-import { CreateImagePath } from "@/constants/tweet-category";
+import ProfileCircle from "./common/profile-circle";
 type MiniProfileProps = {
   userName: string;
   userId: number;
@@ -22,22 +22,10 @@ const MiniProfile = ({
       href={`/profile/${userId}`}
       className='flex items-center cursor-pointer py-2 space-x-2 '
     >
-      {imagepath ? (
-        <Image
-          width={32}
-          height={32}
-          src={CreateImagePath(imagepath)}
-          className='w-[40px] h-[40px] rounded-full'
-          alt=''
-        />
-      ) : (
-        <div
-          className={cls(
-            `rounded-full bg-orange-500`,
-            widthAndHeight as string
-          )}
-        />
-      )}
+      <ProfileCircle
+        imagePath={imagepath as string}
+        className={widthAndHeight}
+      />
 
       <div className='flex-col space-y-1'>
         <p className='text-sm font-medium text-orange-100'>{userName}</p>
