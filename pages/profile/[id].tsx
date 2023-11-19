@@ -1,10 +1,5 @@
 import Layout from "../components/common/layout";
 import useDetailPage from "@/libs/client/useDetailPage";
-import { activityLogParser } from "@/libs/util/activity-log-parser";
-import Link from "next/link";
-import { useState } from "react";
-import cls from "@/libs/util/cls";
-import { notificationLogParser } from "@/libs/util/notification-log-parser";
 import { PROFILE_API_ROUTE } from "@/libs/util/apiroutes";
 import { withSessionSSR } from "@/libs/server/session";
 import type { GetServerSideProps, GetServerSidePropsContext } from "next";
@@ -12,15 +7,10 @@ import client from "@/libs/server/prisma-client";
 import type { User, MeetUp, Tweet } from "@prisma/client";
 
 import type { NextPage } from "next";
-import useSWR from "swr";
+import Image from "next/image";
 import LoadingCover from "../components/common/loading-cover";
 
 type UserData = User & { meetUps: MeetUp[]; tweets: Tweet[] };
-
-type UseSWROthersProfileResponse = {
-  status: "ok" | "loading" | "error";
-  data: { profile: UserData };
-};
 
 type OtherProfileProps = {
   profileInit: UserData;
@@ -46,7 +36,32 @@ const Profile: NextPage<OtherProfileProps> = ({ profileInit, otherUserId }) => {
           hasBack
           hasTopBar
         >
-          <div>{username}의 프로필</div>
+          <div>
+            <div>
+              <Image
+                src={avatar as string}
+                alt={`${username}'s avatar`}
+                width={48}
+                height={48}
+              />
+              <h1>{username}</h1>
+              <p>{introduction}</p>
+            </div>
+
+            <div>
+              <h2>MeetUps</h2>
+              {meetUps.map((meetUp, index) => (
+                <div key={index}>{/* TODO: meetUp 뿌리기*/}</div>
+              ))}
+            </div>
+
+            <div className='tweets-section'>
+              <h2>Tweets</h2>
+              {tweets.map((tweet, index) => (
+                <div key={index}>{/* TODO: Tweet 뿌리기*/}</div>
+              ))}
+            </div>
+          </div>
         </Layout>
       );
     default:

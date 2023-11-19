@@ -22,8 +22,7 @@ import cls from "@/libs/util/cls";
 
 import TweetPost from "../components/tweet-post";
 import { useState } from "react";
-import { UploadTweet } from "./upload-mockup";
-
+import { UploadTweet } from "@/pages/components/common/upload-form";
 import type { CommentType } from "../components/comment";
 import useDetailPage from "@/libs/client/useDetailPage";
 import LoadingCover from "../components/common/loading-cover";
