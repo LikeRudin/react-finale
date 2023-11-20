@@ -14,6 +14,31 @@ export const notificationLogParser = ({
   secondId,
 }: LogArgument): Log => {
   switch (notification) {
+    case "Tweet":
+      return {
+        message: "Re-Tweet이 달렸어요",
+        link: `/tweets/${id}`,
+      };
+    case "TweetLike":
+      return {
+        message: "Tweet이 좋아요를 받았어요.",
+        link: `/tweets/${id}`,
+      };
+    case "TweetComment":
+      return {
+        message: "Tweet에 댓글이 달렸어요.",
+        link: `/tweets/${id}`,
+      };
+    case "TweetCommentLike":
+      return {
+        message: "Tweet댓글에 좋아요를 받았어요.",
+        link: `/tweets/${id}`,
+      };
+    case "TweetCommentReply":
+      return {
+        message: "Tweet에 댓글이 답글을 받았어요",
+        link: `/tweets/${id}`,
+      };
     case "MeetUpLike":
       return {
         message: "MeetUp이 좋아요를 받았어요",
