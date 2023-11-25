@@ -202,6 +202,7 @@ const MeetDetail: NextPage<MeetDetailProps> = ({
                 return (
                   !comment.parent && (
                     <Comment
+                      kind='MEETUP'
                       key={`comment${index}`}
                       {...comment}
                       likes={comment.likes!.length}

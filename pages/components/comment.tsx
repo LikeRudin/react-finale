@@ -1,6 +1,5 @@
 import useMutation from "@/libs/client/useMutation";
-import { MEETS_API_ROUTE } from "@/libs/util/apiroutes";
-import { useState } from "react";
+import { MEETS_API_ROUTE, TWEETS_API_ROUTE } from "@/libs/util/apiroutes";
 import { useForm } from "react-hook-form";
 import { mutate } from "swr";
 import SubmitButton from "./common/submit-button";
@@ -14,7 +13,7 @@ import cls from "@/libs/util/cls";
 import MiniProfile from "./mini-profile";
 import ArrowReplyIcon from "./icons/arrow-reply";
 import CreatedTime from "./icons/created-time";
-import useChangeBoolean from "@/libs/util/useChangeBoolean";
+import useChangeBoolean from "@/libs/client/useChangeBoolean";
 
 type LikesType = {
   id: number;
@@ -31,7 +30,7 @@ export type CommentType = TweetComment & {
   parent: CommentType;
 };
 
-interface CommentProps {
+type CommentProps = {
   userName: string;
   avatar?: string;
   text: string;
@@ -43,7 +42,8 @@ interface CommentProps {
   parentId?: number;
   comments?: CommentType[];
   likes?: number;
-}
+  kind: "TWEET" | "MEETUP" | "REVIEW";
+};
 
 interface EditForm {
   edit: string;
@@ -65,6 +65,7 @@ const Comment = ({
   comments = [],
   parentId = 0,
   likes = 0,
+  kind,
 }: CommentProps) => {
   const { register, handleSubmit, setValue } = useForm<any>();
 
@@ -81,26 +82,27 @@ const Comment = ({
     changeIsReplying(false);
     changeIsEditing();
   };
+  const apiRoute = kind === "MEETUP" ? MEETS_API_ROUTE : TWEETS_API_ROUTE;
 
   const { trigger: deleteTrigger } = useMutation(
-    MEETS_API_ROUTE.COMMENTS_EDIT(postId, id),
+    apiRoute.COMMENTS_EDIT(postId, id),
     "DELETE",
-    () => mutate(MEETS_API_ROUTE.DETAIL(postId))
+    () => mutate(apiRoute.DETAIL(postId))
   );
   const { trigger: EditTrigger } = useMutation(
-    MEETS_API_ROUTE.COMMENTS_EDIT(postId, id),
+    apiRoute.COMMENTS_EDIT(postId, id),
     "POST",
-    () => mutate(MEETS_API_ROUTE.DETAIL(postId))
+    () => mutate(apiRoute.DETAIL(postId))
   );
   const { trigger: ReplyTrigger } = useMutation(
-    MEETS_API_ROUTE.COMMENTS_REPLY(postId, id),
+    apiRoute.COMMENTS_REPLY(postId, id),
     "POST",
-    () => mutate(MEETS_API_ROUTE.DETAIL(postId))
+    () => mutate(apiRoute.DETAIL(postId))
   );
   const { trigger: LikeTrigger } = useMutation(
-    MEETS_API_ROUTE.COMMENTS_LIKE(postId, id),
+    apiRoute.COMMENTS_LIKE(postId, id),
     "POST",
-    () => mutate(MEETS_API_ROUTE.DETAIL(postId))
+    () => mutate(apiRoute.DETAIL(postId))
   );
 
   const onLikeClick = () => {
@@ -216,6 +218,7 @@ const Comment = ({
                 parentId &&
                 parentId === id && (
                   <Comment
+                    kind={kind}
                     comments={comments as []}
                     key={index}
                     isOwner={ownerId === userId}
