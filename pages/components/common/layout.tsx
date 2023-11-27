@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { ROUTE_PATH } from "@/libs/util/apiroutes";
+import LoginChecker from "@/libs/client/LoginChecker";
 
 import cls from "@/libs/util/cls";
 
@@ -32,6 +33,7 @@ const Layout = ({
   metaText,
   hasTopBar,
 }: LayoutProps) => {
+  LoginChecker();
   const router = useRouter();
   const onBackClick = () => router.back();
   return (
